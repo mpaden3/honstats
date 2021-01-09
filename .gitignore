@@ -1,2 +1,4 @@
 .idea/
 venv
+honstats/__pycache__/
+honstats.sock
