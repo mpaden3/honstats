@@ -1,4 +1,5 @@
 .idea/
+.env
 venv
 honstats/__pycache__/
 honstats.sock
