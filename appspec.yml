@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /honstats
+hooks:
+  BeforeInstall:
+    - location: .aws/scripts/before_install.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: .aws/scripts/after_install.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: .aws/scripts/start_server.sh
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: .aws/scripts/stop_server.sh
+      timeout: 300
+      runas: root
