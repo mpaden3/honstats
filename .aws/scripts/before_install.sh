@@ -1,2 +1,3 @@
-cd /home/ec2-user/honstats
-rm -rf venv
+cd /home/ec2-user
+rm -rf honstats
+mkdir honstats
