@@ -8,3 +8,4 @@ rm -rf venv
 ./venv/bin/python ./manage.py collectstatic
 cd ..
 cp .env honstats/honstats/.env
+service supervisord restart
