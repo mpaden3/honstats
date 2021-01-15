@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: home/ec2-user/honstats
+    destination: /home/ec2-user/honstats
 hooks:
   BeforeInstall:
     - location: .aws/scripts/before_install.sh
