@@ -1,5 +1,7 @@
 .idea/
 .env
 venv
-honstats/__pycache__/
+__pycache__/
+*.pyc
 honstats.sock
+static/

@@ -4,8 +4,8 @@ cd /home/ec2-user/honstats
 rm -rf venv
 /usr/bin/python3 -m virtualenv venv
 ./venv/bin/pip install -r requirements.txt
-./venv/bin/python ./manage.py migrate
-./venv/bin/python ./manage.py collectstatic
+./venv/bin/python manage.py migrate
+./venv/bin/python manage.py collectstatic
 cd ..
 cp .env honstats/honstats/.env
 service supervisord restart
