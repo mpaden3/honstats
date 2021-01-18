@@ -23,5 +23,5 @@ class Match(TimeStampedModel):
 class Player(TimeStampedModel):
     match = models.ForeignKey(Match, on_delete=models.DO_NOTHING)
     account = models.ForeignKey(Account, on_delete=models.DO_NOTHING)
-    hero = models.ForeignKey(Hero, on_delete=models.DO_NOTHING)
-    gpm = models.FloatField()
+    hero = models.ForeignKey(Hero, on_delete=models.DO_NOTHING, null=True)
+    gpm = models.FloatField(null=True)
