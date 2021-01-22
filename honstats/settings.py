@@ -30,6 +30,11 @@ DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
+# Domain
+HON_COOKIE = os.environ.get("HON_COOKIE")
+CLIENT_REQUESTER_URL = (
+    "http://masterserver.naeu.heroesofnewerth.com/client_requester.php"
+)
 
 # Application definition
 
@@ -77,10 +82,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "honstats.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     "default": {

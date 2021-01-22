@@ -4,4 +4,12 @@
     <div>
     {{ object.account_id }} {{ object.nickname }} {{ object.games_played }} {{ object.total_games_played }} {{ object.last_activity }}
     </div>
+
+    <table>
+    {% for match in matches %}
+    <tr >
+        {{ match.match.match_id }}
+    </tr>
+{% endfor %}
+    </table>
 {% endblock %}

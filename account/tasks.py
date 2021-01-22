@@ -2,9 +2,9 @@ import os
 
 import requests
 from phpserialize import loads
-from honstats.settings import BASE_DIR
 
 from account.utils import update_or_create_account_from_stats
+from honstats.settings import BASE_DIR, CLIENT_REQUESTER_URL
 
 
 def fetch_player_data(nickname):
@@ -15,11 +15,14 @@ def fetch_player_data(nickname):
     }
 
     response = requests.post(
-        "http://masterserver.naeu.heroesofnewerth.com/client_requester.php",
+        CLIENT_REQUESTER_URL,
         request_data,
     ).content
     data = loads(response, decode_strings=True)
-    update_or_create_account_from_stats(data)
+    if "account_id" in data:
+        account = update_or_create_account_from_stats(data)
+        return account.account_id
+    return None
 
 
 def fetch_dummy_player_data():
