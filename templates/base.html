@@ -24,7 +24,7 @@
             <a class="nav-item nav-link" href="{% url 'about' %}">Items</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">Heroes</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
-            <a class="nav-item nav-link" href="{% url 'about' %}">Q&A</a>
+            <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>
         </div>
     </div>
     {% if user.is_authenticated %}
@@ -33,7 +33,7 @@
     </div>
     {% endif %}
 </nav>
-<div id="content" class="container">
+<div id="content" class="container" style="min-height: 500px">
     {% block content %}{% endblock %}
 </div>
 <footer class="bg-light text-center text-lg-start">
