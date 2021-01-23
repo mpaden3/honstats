@@ -1,27 +1,133 @@
+import datetime
+
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from account.models import Account
-from game_data.models import Hero
+from game_data.models import Hero, Item
+
+TEAM_EMPTY = "0"
+TEAM_LEGION = "1"
+TEAM_HELLBOURNE = "2"
 
 
 class Match(TimeStampedModel):
-    FETCHED = "1"
-    API = "2"
+    KNOWN = "1"
+    FETCHED = "2"
     REPLAY = "3"
     PARSED_LEVELS = [
+        (KNOWN, "Known"),
         (FETCHED, "Fetched"),
-        (API, "Api"),
-        (REPLAY, "Replay"),
+        (REPLAY, "Replay parsed"),
     ]
+    WINNING_TEAM = [
+        (TEAM_EMPTY, "Empty"),
+        (TEAM_LEGION, "Legion"),
+        (TEAM_HELLBOURNE, "Hellbourne"),
+    ]
+
     match_id = models.IntegerField(primary_key=True)
-    match_date = models.DateField()
-    parsed_level = models.TextField(
-        max_length=1, choices=PARSED_LEVELS, default=FETCHED
+    match_date = models.DateTimeField(null=True)
+    match_name = models.CharField(max_length=127)
+    replay_log_url = models.CharField(max_length=511)
+    duration = models.IntegerField(null=True)
+    winning_team = models.TextField(
+        max_length=1, choices=WINNING_TEAM, default=TEAM_EMPTY
     )
+    parsed_level = models.TextField(
+        max_length=1, choices=PARSED_LEVELS, default=KNOWN
+    )
+
+    class Meta:
+        ordering = ['-match_id']
+
+    def duration_format(self):
+        if self.duration is None:
+            return ""
+
+        return str(datetime.timedelta(seconds=self.duration))
+
+    def is_fetched(self):
+        return self.parsed_level == self.FETCHED
+
+    def is_parsed(self):
+        if self.parsed_level == self.REPLAY:
+            return "Yes"
+        return "No"
+
+    def __str__(self):
+        if self.match_name:
+            return self.match_name
+        return str(self.match_id)
+
+    def average_mmr(self):
+        if self.parsed_level == self.KNOWN:
+            return None
+
+        sum = 0.0
+        for player in self.player_set.all():
+            sum += player.mmr_before
+        return round(sum / 10, 2)
 
 
 class Player(TimeStampedModel):
     match = models.ForeignKey(Match, on_delete=models.DO_NOTHING)
-    account = models.ForeignKey(Account, on_delete=models.DO_NOTHING)
-    hero = models.ForeignKey(Hero, on_delete=models.DO_NOTHING)
-    gpm = models.FloatField()
+    account = models.ForeignKey(
+        Account, on_delete=models.DO_NOTHING, related_name="matches"
+    )
+    TEAM = [
+        (TEAM_EMPTY, "Empty"),
+        (TEAM_LEGION, "Legion"),
+        (TEAM_HELLBOURNE, "Hellbourne"),
+    ]
+    team = models.TextField(max_length=1, choices=TEAM, default=TEAM_EMPTY)
+    position = models.TextField(max_length=1, null=True)
+    level = models.IntegerField(null=True)
+    hero = models.ForeignKey(Hero, on_delete=models.DO_NOTHING, null=True)
+    hero_kills = models.IntegerField(null=True)
+    deaths = models.IntegerField(null=True)
+    kicked = models.BooleanField(default=False)
+    hero_assists = models.IntegerField(null=True)
+    networth = models.IntegerField(null=True)
+    hero_damage = models.IntegerField(null=True)
+    tower_damage = models.IntegerField(null=True)
+    lasthits = models.IntegerField(null=True)
+    denies = models.IntegerField(null=True)
+    wards = models.IntegerField(null=True)
+    mmr_before = models.FloatField(null=True)
+    mmr_after = models.FloatField(null=True)
+
+    final_items = models.JSONField(default=dict)
+    gpm = models.FloatField(null=True)
+
+    def is_winner(self):
+        return self.match.winning_team == self.team
+
+    def mmr_diff(self):
+        if self.mmr_after and self.mmr_before:
+            return round(self.mmr_after - self.mmr_before,2)
+        return None
+
+    def get_kda(self):
+        if self.hero_kills + self.hero_assists == 0 or self.deaths == 0:
+            return 0
+        return (self.hero_kills + self.hero_assists) / self.deaths
+
+    def get_kd(self):
+        if self.hero_kills == 0 or self.deaths == 0:
+            return 0
+        return round(self.hero_kills / self.deaths, 2)
+
+    def __str__(self):
+        return f"{self.match} {self.account}"
+
+    def get_items(self):
+        items = []
+        for slot, item in self.final_items.items():
+            try:
+                if item is None:
+                    items.append(Item(code="Backpack", name="Empty"))
+                item = Item.objects.get(code=item)
+                items.append(item)
+            except Item.DoesNotExist:
+                continue
+        return items

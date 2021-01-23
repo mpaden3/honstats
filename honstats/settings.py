@@ -18,7 +18,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -30,6 +29,11 @@ DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
+# Domain
+HON_COOKIE = os.environ.get("HON_COOKIE")
+CLIENT_REQUESTER_URL = (
+    "http://masterserver.naeu.heroesofnewerth.com/client_requester.php"
+)
 
 # Application definition
 
@@ -40,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     "django_extensions",
     "account",
     "match",
@@ -78,10 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "honstats.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -92,7 +93,6 @@ DATABASES = {
         "PORT": "5432",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -112,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -126,9 +125,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "../game_data/static")
