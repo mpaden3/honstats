@@ -6,7 +6,7 @@ from account.tasks import fetch_player_data
 
 class SearchForm(forms.Form):
     search_term = forms.CharField(
-        label="Search nickname or match id", max_length=100, required=True
+        label="Search nickname or Match ID", max_length=100, required=True
     )
 
     def fetch_data(self):

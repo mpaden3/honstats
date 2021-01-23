@@ -4,8 +4,8 @@ from account.models import Account
 from game_data.models import Hero
 
 TEAM_EMPTY = "0"
-TEAM_RADIANT = "1"
-TEAM_DIRE = "2"
+TEAM_LEGION = "1"
+TEAM_HELLBOURNE = "2"
 
 
 class Match(TimeStampedModel):
@@ -19,8 +19,8 @@ class Match(TimeStampedModel):
     ]
     WINNING_TEAM = [
         (TEAM_EMPTY, "Empty"),
-        (TEAM_RADIANT, "Radiant"),
-        (TEAM_DIRE, "Dire"),
+        (TEAM_LEGION, "Radiant"),
+        (TEAM_HELLBOURNE, "Dire"),
     ]
 
     match_id = models.IntegerField(primary_key=True)
@@ -47,8 +47,8 @@ class Player(TimeStampedModel):
     )
     TEAM = [
         (TEAM_EMPTY, "Empty"),
-        (TEAM_RADIANT, "Radiant"),
-        (TEAM_DIRE, "Dire"),
+        (TEAM_LEGION, "Legion"),
+        (TEAM_HELLBOURNE, "Hellbourne"),
     ]
     team = models.TextField(max_length=1, choices=TEAM, default=TEAM_EMPTY)
     position = models.TextField(max_length=1, null=True)

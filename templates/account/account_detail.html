@@ -2,14 +2,38 @@
 
 {% block content %}
     <div>
-    {{ object.account_id }} {{ object.nickname }} {{ object.games_played }} {{ object.total_games_played }} {{ object.last_activity }}
+        {{ object.account_id }} {{ object.nickname }} {{ object.games_played }} {{ object.total_games_played }} {{ object.last_activity }}
     </div>
 
-    <table>
-    {% for match in matches %}
-    <tr >
-        {{ match.match.match_id }}
-    </tr>
-{% endfor %}
+
+
+
+
+
+
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Status</th>
+            <th scope="col">Match ID</th>
+            <th scope="col">Date</th>
+            <th scope="col">Hero</th>
+            <th scope="col">Team</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for player in object.matches.all %}
+
+            <tr>
+                <td>{{ player.match.get_parsed_level_display }}</td>
+                <td>{{ player.match_id }}</td>
+                <td>{{ player.match.match_date }}</td>
+                <td>{{ player.hero.name }}</td>
+                <td>{{ player.team }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
     </table>
+
 {% endblock %}
