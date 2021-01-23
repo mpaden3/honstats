@@ -13,11 +13,12 @@ def update_or_create_match_from_stats(match_id, data):
             match_id=match_id,
         )
     match_data = data["match_summ"][match_id]
-    match.match_date = datetime.strptime(match_data["date"], "%m/%d/%Y")
+    match.match_date = datetime.strptime(match_data["date"]+match_data["time"], "%m/%d/%Y%I:%M:%S %p") # 05:27:06 AM
     match.match_name = match_data["mname"]
+    match.duration = int(match_data["time_played"])
     match.winning_team = match_data["winning_team"]
     match.replay_log_url = match_data["s3_url"].replace(".honreplay", ".zip")
-    match.parsed_level = Match.API
+    match.parsed_level = Match.FETCHED
     match.save()
 
     for account_id, player_data in data["match_player_stats"][match_id].items():

@@ -1,20 +1,28 @@
 {% extends "base.html" %}
 {% load humanize %}
-
+{% block title %}
+    {{ object.match_name }} - Overview
+{% endblock %}
 {% block content %}
     <div class="match-info card card-body bg-dark text-light">
         <table>
             <tr>
-                <td>{{ object.match_name }}</td>
+                <td><h2 class="hellbourne">{{ object.match_name }}</h2></td>
             </tr>
             <tr>
                 <td>Match date: {{ object.match_date }}</td>
             </tr>
             <tr>
-                <td>Duration:{{ object.duration }}</td>
+                <td>Duration: {{ object.duration_format }}</td>
+            </tr>
+            <tr>
+                <td>Average MMR: {{ object.average_mmr }}</td>
             </tr>
             <tr>
                 <td>Winner: {{ object.get_winning_team_display }}</td>
+            </tr>
+            <tr>
+                <td>Parsed: {{ object.is_parsed }}</td>
             </tr>
         </table>
 
@@ -28,6 +36,8 @@
             <th scope="col">KD Ratio</th>
             <th scope="col">LH / DN</th>
             <th scope="col">Networth</th>
+            <th scope="col">Hero Damage</th>
+            <th scope="col">Tower Damage</th>
             <th scope="col">Wards</th>
             <th scope="col">Items</th>
         </tr>
@@ -39,7 +49,7 @@
         {% for player in players %}
             {% if player.team == "1" %}
                 <tr>
-                    <td>{{ player.hero.name }}</td>
+                    <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
                     <td><a class="account-link"
                            href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a></td>
                     <td><span class="span-kills">{{ player.hero_kills }}</span> /
@@ -48,6 +58,8 @@
                     <td>{{ player.get_kd }}</td>
                     <td>{{ player.lasthits }} / {{ player.denies }}</td>
                     <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
+                    <td><span>{{ player.hero_damage|intcomma }}</span></td>
+                    <td><span>{{ player.tower_damage|intcomma }}</span></td>
                     <td><span>{{ player.wards }}</span></td>
                     <td>
                         {% for item in player.get_items %}
@@ -64,7 +76,7 @@
         {% for player in players %}
             {% if player.team == "2" %}
                 <tr>
-                    <td>{{ player.hero.name }}</td>
+                    <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
                     <td><a class="account-link"
                            href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a></td>
                     <td><span class="span-kills">{{ player.hero_kills }}</span> /
@@ -73,6 +85,8 @@
                     <td>{{ player.get_kd }}</td>
                     <td>{{ player.lasthits }} / {{ player.denies }}</td>
                     <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
+                    <td><span>{{ player.hero_damage|intcomma }}</span></td>
+                    <td><span>{{ player.tower_damage|intcomma }}</span></td>
                     <td><span>{{ player.wards }}</span></td>
                     <td>
                         {% for item in player.get_items %}

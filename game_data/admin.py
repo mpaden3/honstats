@@ -13,5 +13,12 @@ class ItemAdmin(admin.ModelAdmin):
         return format_html(obj.image_html())
 
 
-admin.site.register(Hero)
+class HeroAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "icon")
+
+    def icon(self, obj):
+        return format_html(obj.image_html())
+
+
+admin.site.register(Hero, HeroAdmin)
 admin.site.register(Item, ItemAdmin)

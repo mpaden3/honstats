@@ -15,6 +15,6 @@ class SearchForm(forms.Form):
         # TODO actual database search
         if Account.objects.filter(nickname__iexact=nickname).exists():
             account = Account.objects.get(nickname__iexact=nickname)
-            return account.account_id
+            return account
 
         return fetch_player_data(nickname)

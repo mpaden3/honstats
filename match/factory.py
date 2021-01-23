@@ -26,6 +26,7 @@ def get_or_create_player_from_data(match, account, data, inventory):
     player.hero_assists = int(data["heroassists"])
     player.networth = int(data["gold"])
     player.hero_damage = int(data["herodmg"])
+    player.tower_damage = int(data["bdmg"])
     player.lasthits = int(data["teamcreepkills"])
     player.denies = int(data["denies"])
     player.wards = int(data["wards"])

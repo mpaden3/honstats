@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}
+    Latest Matches
+{% endblock %}
+{% block content %}
+    <div class="match-info card card-body bg-dark text-light">
+        <h2>Latest fetched matches</h2>
+    </div>
+    <table class="table table-striped table-dark">
+        <thead>
+        <tr>
+            <th scope="col">Match ID</th>
+            <th scope="col">Average MMR</th>
+            <th scope="col">Winner</th>
+            <th scope="col">Match Duration</th>
+            <th scope="col">Match Date</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for match in object_list %}
+            <tr>
+                <td><a class="account-link" href="{% url 'match-detail' pk=match.match_id %}">{{ match.match_id }}</a>
+                <td>{{ match.average_mmr }}</td>
+                <td>{{ match.get_winning_team_display }}</td>
+                <td>{{ match.duration_format }}</td>
+                <td>{{ match.match_date }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
+{% endblock %}

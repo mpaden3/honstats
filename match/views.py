@@ -1,4 +1,4 @@
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 from match.models import Match
 from match.tasks import fetch_match_data
@@ -9,7 +9,7 @@ class MatchDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj: Match = super(MatchDetailView, self).get_object(queryset=queryset)
-        if obj.parsed_level == Match.FETCHED:
+        if obj.parsed_level == Match.KNOWN:
             obj = fetch_match_data(obj.match_id)
 
         return obj
@@ -19,3 +19,8 @@ class MatchDetailView(DetailView):
         context["players"] = self.object.player_set.all().order_by("position")
 
         return context
+
+
+class MatchListView(ListView):
+    model = Match
+    paginate_by = 50

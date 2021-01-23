@@ -1,5 +1,8 @@
+from game_data.models import Hero
+
+
 def find_hero(hero_id):
-    return None  # TODO
+    return Hero.objects.get(hero_id=hero_id)
 
 
 def parse_items(inventory):

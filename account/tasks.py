@@ -20,8 +20,7 @@ def fetch_player_data(nickname):
     ).content
     data = loads(response, decode_strings=True)
     if "account_id" in data:
-        account = update_or_create_account_from_stats(data)
-        return account.account_id
+        return update_or_create_account_from_stats(data)
     return None
 
 

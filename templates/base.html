@@ -19,8 +19,8 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link" href="{% url 'about' %}">Matches</a>
-            <a class="nav-item nav-link" href="{% url 'about' %}">Players</a>
+            <a class="nav-item nav-link" href="{% url 'match-list' %}">Matches</a>
+            <a class="nav-item nav-link" href="{% url 'account-list' %}">Players</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">Items</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">Heroes</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
@@ -33,15 +33,13 @@
     </div>
     {% endif %}
 </nav>
-<div id="content" class="container" style="min-height: 500px">
+<div id="content" class="container" style="min-height: 500px; max-width: 1340px">
     {% block content %}{% endblock %}
 </div>
 <footer class="bg-light text-center text-lg-start">
-  <!-- Copyright -->
   <div class="text-center p-3" style="background-color:#343a40">
-    © 2021 Copyright
+    © 2021 Honstats
   </div>
-  <!-- Copyright -->
 </footer>
 </body>
 </html>
