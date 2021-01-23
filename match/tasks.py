@@ -19,7 +19,7 @@ def fetch_match_data(match_id):
         request_data,
     ).content
     data = loads(response, decode_strings=True)
-    update_or_create_match_from_stats(match_id, data)
+    return update_or_create_match_from_stats(match_id, data)
 
 
 def fetch_dummy_match_data():

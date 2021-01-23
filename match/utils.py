@@ -22,6 +22,8 @@ def update_or_create_match_from_stats(match_id, data):
 
     for account_id, player_data in data["match_player_stats"][match_id].items():
         account = get_or_create_account_with_id(account_id, player_data["nickname"])
+        if account_id not in data["inventory"][match_id]:
+            data["inventory"][match_id][account_id] = {}
         get_or_create_player_from_data(
             match, account, player_data, data["inventory"][match_id][account_id]
         )

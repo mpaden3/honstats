@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from account.factory import get_or_create_account_from_stats
-from match.factory import create_empty_player
+from match.factory import get_or_create_empty_player
 from match.models import Match
 from match.utils import parse_match_dates
 
@@ -23,7 +23,7 @@ def update_or_create_account_from_stats(data, create_matches=True):
                     match.match_date = match_date
                     match.save()
 
-                player = create_empty_player(match, account)
+                player = get_or_create_empty_player(match, account)
                 player.save()
             i += 1
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% block title %}{{ object.nickname }} - Overview - Honstats {% endblock %}
 {% block content %}
     <div>
         {{ object.account_id }} {{ object.nickname }} {{ object.games_played }} {{ object.total_games_played }} {{ object.last_activity }}
@@ -12,25 +12,24 @@
 
 
 
-    <table class="table table-striped">
+    <table class="table table-striped table-dark">
         <thead>
         <tr>
-            <th scope="col">Status</th>
+            <th scope="col">Hero</th>
             <th scope="col">Match ID</th>
             <th scope="col">Date</th>
-            <th scope="col">Hero</th>
             <th scope="col">Team</th>
+            <th scope="col">Status</th>
         </tr>
         </thead>
         <tbody>
-        {% for player in object.matches.all %}
-
+        {% for player in matches %}
             <tr>
-                <td>{{ player.match.get_parsed_level_display }}</td>
-                <td>{{ player.match_id }}</td>
+                 <td>{{ player.hero.name }}</td>
+                <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a></td>
                 <td>{{ player.match.match_date }}</td>
-                <td>{{ player.hero.name }}</td>
-                <td>{{ player.team }}</td>
+                <td>{{ player.get_team_display }}</td>
+                <td>{{ player.match.get_parsed_level_display }}</td>
             </tr>
         {% endfor %}
         </tbody>

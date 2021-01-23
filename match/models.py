@@ -1,7 +1,7 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from account.models import Account
-from game_data.models import Hero
+from game_data.models import Hero, Item
 
 TEAM_EMPTY = "0"
 TEAM_LEGION = "1"
@@ -19,8 +19,8 @@ class Match(TimeStampedModel):
     ]
     WINNING_TEAM = [
         (TEAM_EMPTY, "Empty"),
-        (TEAM_LEGION, "Radiant"),
-        (TEAM_HELLBOURNE, "Dire"),
+        (TEAM_LEGION, "Legion"),
+        (TEAM_HELLBOURNE, "Hellbourne"),
     ]
 
     match_id = models.IntegerField(primary_key=True)
@@ -73,14 +73,26 @@ class Player(TimeStampedModel):
         return self.mmr_after - self.mmr_before
 
     def get_kda(self):
-        if self.hero_kills + self.hero_assists == 0 or self.deaths:
+        if self.hero_kills + self.hero_assists == 0 or self.deaths == 0:
             return 0
         return (self.hero_kills + self.hero_assists) / self.deaths
 
     def get_kd(self):
-        if self.hero_kills == 0 or self.deaths:
+        if self.hero_kills == 0 or self.deaths == 0:
             return 0
-        return self.hero_kills / self.deaths
+        return round(self.hero_kills / self.deaths, 2)
 
     def __str__(self):
         return f"{self.match} {self.account}"
+
+    def get_items(self):
+        items = []
+        for slot, item in self.final_items.items():
+            try:
+                if item is None:
+                    items.append(Item(code="Backpack", name="Empty"))
+                item = Item.objects.get(code=item)
+                items.append(item)
+            except Item.DoesNotExist:
+                continue
+        return items

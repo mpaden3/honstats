@@ -2,8 +2,12 @@ from game_data.utils import parse_items, find_hero
 from match.models import Player
 
 
-def create_empty_player(match, account):
-    return Player(account=account, match=match)
+def get_or_create_empty_player(match, account):
+    try:
+        player = Player.objects.get(account=account, match=match)
+    except Player.DoesNotExist:
+        player = Player(account=account, match=match)
+    return player
 
 
 def get_or_create_player_from_data(match, account, data, inventory):
@@ -30,7 +34,6 @@ def get_or_create_player_from_data(match, account, data, inventory):
 
     player.final_items = parse_items(inventory)
 
-    # parse 6 items
     player.save()
 
     return player

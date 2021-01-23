@@ -1,7 +1,89 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block content %}
-    <div>
-    {{ object.match_id }} {{ object.match_date }}
+    <div class="match-info card card-body bg-dark text-light">
+        <table>
+            <tr>
+                <td>{{ object.match_name }}</td>
+            </tr>
+            <tr>
+                <td>Match date: {{ object.match_date }}</td>
+            </tr>
+            <tr>
+                <td>Duration:{{ object.duration }}</td>
+            </tr>
+            <tr>
+                <td>Winner: {{ object.get_winning_team_display }}</td>
+            </tr>
+        </table>
+
     </div>
+    <table class="table table-striped table-dark">
+        <thead>
+        <tr>
+            <th scope="col">HERO</th>
+            <th scope="col">Player Name</th>
+            <th scope="col">K / D / A</th>
+            <th scope="col">KD Ratio</th>
+            <th scope="col">LH / DN</th>
+            <th scope="col">Networth</th>
+            <th scope="col">Wards</th>
+            <th scope="col">Items</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th class="legion" scope="col">Legion</th>
+        </tr>
+        {% for player in players %}
+            {% if player.team == "1" %}
+                <tr>
+                    <td>{{ player.hero.name }}</td>
+                    <td><a class="account-link"
+                           href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a></td>
+                    <td><span class="span-kills">{{ player.hero_kills }}</span> /
+                        <span class="span-deaths">{{ player.deaths }}</span> /
+                        <span class="span-assists">{{ player.hero_assists }}</span></td>
+                    <td>{{ player.get_kd }}</td>
+                    <td>{{ player.lasthits }} / {{ player.denies }}</td>
+                    <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
+                    <td><span>{{ player.wards }}</span></td>
+                    <td>
+                        {% for item in player.get_items %}
+                            {{ item.image_html|safe }}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+
+        <tr>
+            <th class="hellbourne" scope="col">Hellbourne</th>
+        </tr>
+        {% for player in players %}
+            {% if player.team == "2" %}
+                <tr>
+                    <td>{{ player.hero.name }}</td>
+                    <td><a class="account-link"
+                           href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a></td>
+                    <td><span class="span-kills">{{ player.hero_kills }}</span> /
+                        <span class="span-deaths">{{ player.deaths }}</span> /
+                        <span class="span-assists">{{ player.hero_assists }}</span></td>
+                    <td>{{ player.get_kd }}</td>
+                    <td>{{ player.lasthits }} / {{ player.denies }}</td>
+                    <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
+                    <td><span>{{ player.wards }}</span></td>
+                    <td>
+                        {% for item in player.get_items %}
+                            {{ item.image_html|safe }}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+
 {% endblock %}
