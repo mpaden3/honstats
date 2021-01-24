@@ -33,12 +33,10 @@ class Match(TimeStampedModel):
     winning_team = models.TextField(
         max_length=1, choices=WINNING_TEAM, default=TEAM_EMPTY
     )
-    parsed_level = models.TextField(
-        max_length=1, choices=PARSED_LEVELS, default=KNOWN
-    )
+    parsed_level = models.TextField(max_length=1, choices=PARSED_LEVELS, default=KNOWN)
 
     class Meta:
-        ordering = ['-match_id']
+        ordering = ["-match_id"]
 
     def duration_format(self):
         if self.duration is None:
@@ -63,10 +61,10 @@ class Match(TimeStampedModel):
         if self.parsed_level == self.KNOWN:
             return None
 
-        sum = 0.0
+        total = 0.0
         for player in self.player_set.all():
-            sum += player.mmr_before
-        return round(sum / 10, 2)
+            total += player.mmr_before
+        return round(total / 10, 2)
 
 
 class Player(TimeStampedModel):
@@ -86,6 +84,7 @@ class Player(TimeStampedModel):
     hero_kills = models.IntegerField(null=True)
     deaths = models.IntegerField(null=True)
     kicked = models.BooleanField(default=False)
+    disconnect = models.BooleanField(default=False)
     hero_assists = models.IntegerField(null=True)
     networth = models.IntegerField(null=True)
     hero_damage = models.IntegerField(null=True)
@@ -97,14 +96,15 @@ class Player(TimeStampedModel):
     mmr_after = models.FloatField(null=True)
 
     final_items = models.JSONField(default=dict)
-    gpm = models.FloatField(null=True)
+    gpm = models.IntegerField(null=True)
+    apm = models.IntegerField(null=True)
 
     def is_winner(self):
         return self.match.winning_team == self.team
 
     def mmr_diff(self):
         if self.mmr_after and self.mmr_before:
-            return round(self.mmr_after - self.mmr_before,2)
+            return round(self.mmr_after - self.mmr_before, 2)
         return None
 
     def get_kda(self):

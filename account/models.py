@@ -13,7 +13,7 @@ class Account(TimeStampedModel):
     fetched_date = models.DateTimeField(null=True)
 
     class Meta:
-        ordering = ['nickname']
+        ordering = ["nickname"]
 
     def __str__(self):
         return self.nickname

@@ -7,24 +7,31 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Hero',
+            name="Hero",
             fields=[
-                ('hero_id', models.IntegerField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128, null=True)),
-                ('code', models.CharField(max_length=128, null=True, unique=True)),
+                ("hero_id", models.IntegerField(primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=128, null=True)),
+                ("code", models.CharField(max_length=128, null=True, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Item',
+            name="Item",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, null=True)),
-                ('code', models.CharField(db_index=True, max_length=255, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128, null=True)),
+                ("code", models.CharField(db_index=True, max_length=255, unique=True)),
             ],
         ),
     ]

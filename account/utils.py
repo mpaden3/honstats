@@ -1,30 +1,21 @@
-from datetime import datetime
-
 from account.factory import get_or_create_account_from_stats
-from match.factory import get_or_create_empty_player
+from match.factory import get_or_create_player_basic
 from match.models import Match
-from match.utils import parse_match_dates
+from match.utils import update_match_basic
 
 
-def update_or_create_account_from_stats(data, create_matches=True):
+def update_or_create_account_from_stats(data, match_data, create_matches=True):
     account = get_or_create_account_from_stats(data)
 
     if create_matches:
-        match_dates = parse_match_dates(data["matchDates"])
-        match_ids = data["matchIds"].split(" ")
-        i = 0
-        for match_id in match_ids:
-            if match_id != "":
-                match, created = Match.objects.get_or_create(
-                    match_id=int(match_id)
-                )
-                if created:
-                    match_date = datetime.strptime(match_dates[i], "%m/%d/%Y")
-                    match.match_date = match_date
-                    match.save()
+        for num, match_dat in match_data.items():
 
-                player = get_or_create_empty_player(match, account)
-                player.save()
-            i += 1
+            if isinstance(match_dat, dict) and match_dat["map"] == "caldavar":
+                match, created = Match.objects.get_or_create(
+                    match_id=int(match_dat["match_id"])
+                )
+                if created or match.parsed_level == Match.KNOWN:
+                    update_match_basic(match, match_dat)
+                    get_or_create_player_basic(match, account, match_dat)
 
     return account

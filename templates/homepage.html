@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 
+
+
+{% block search_form %}
+
+    <form class="form-inline my-2 my-lg-0" action="{% url 'homepage' %}" method="post">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2 main-search" type="search" name="search_term" placeholder="Search player or match ID" aria-label="Search">
+        <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+    </form>
+{% endblock %}
+
 {% block content %}
     Work in progress!!!
-    <form style="text-align: center" action="{% url 'homepage' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Search">
-    </form>
 {% endblock %}

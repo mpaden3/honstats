@@ -50,8 +50,13 @@
             {% if player.team == "1" %}
                 <tr>
                     <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
-                    <td><a class="account-link"
-                           href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a></td>
+                    <td>
+                        <a class="account-link"
+                           href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
+                        {% if player.disconnect %}
+                            <span class="hellbourne"> DC</span>
+                        {% endif %}
+                    </td>
                     <td><span class="span-kills">{{ player.hero_kills }}</span> /
                         <span class="span-deaths">{{ player.deaths }}</span> /
                         <span class="span-assists">{{ player.hero_assists }}</span></td>
@@ -78,7 +83,11 @@
                 <tr>
                     <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
                     <td><a class="account-link"
-                           href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a></td>
+                           href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
+                                        {% if player.disconnect %}
+                        <span class="hellbourne"> DC</span>
+                    {% endif %}
+                    </td>
                     <td><span class="span-kills">{{ player.hero_kills }}</span> /
                         <span class="span-deaths">{{ player.deaths }}</span> /
                         <span class="span-assists">{{ player.hero_assists }}</span></td>

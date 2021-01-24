@@ -11,10 +11,17 @@ class SearchForm(forms.Form):
 
     def fetch_data(self):
         nickname = self.cleaned_data["search_term"]
-        # TODO last_fetch_date, SQL injection, match search
+        # TODO SQL injection, match search
         # TODO actual database search
         if Account.objects.filter(nickname__iexact=nickname).exists():
             account = Account.objects.get(nickname__iexact=nickname)
             return account
 
         return fetch_player_data(nickname)
+
+    def is_match_id(self):
+        search_term = self.cleaned_data["search_term"]
+        return search_term.isnumeric()
+
+    def get_search_term(self):
+        return self.cleaned_data["search_term"]

@@ -13,9 +13,18 @@ class HomepageView(FormView):
     success_url = None
 
     def form_valid(self, form):
-        account = form.fetch_data()
-        if account:
-            self.success_url = reverse("account-detail", args=[account.account_id])
+
+        # handle match
+        if form.is_match_id():
+            self.success_url = reverse("match-detail", args=[form.get_search_term()])
+            return super().form_valid(form)
+
+        if Account.objects.filter(nickname__iexact=form.get_search_term()).exists():
+            account = Account.objects.get(nickname__iexact=form.get_search_term())
+        else:
+            account = fetch_player_data(form.get_search_term())
+        self.success_url = reverse("account-detail", args=[account.account_id])
+
         return super().form_valid(form)
 
 
@@ -23,17 +32,20 @@ class AccountDetailView(DetailView):
     model = Account
 
     def get_object(self, queryset=None):
-        object = super(AccountDetailView, self).get_object()
+        account = super(AccountDetailView, self).get_object()
 
-        if object.fetched_date is None or object.fetched_date + timezone.timedelta(seconds=900) < timezone.now():
-            object = fetch_player_data(object.nickname)
-        return object
-
-
+        if (
+            account.fetched_date is None
+            or account.fetched_date + timezone.timedelta(seconds=900) < timezone.now()
+        ):
+            account = fetch_player_data(account.nickname)
+        return account
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["matches"] = self.object.matches.all().order_by("-match__match_date")
+        context["matches"] = self.object.matches.all().order_by("-match__match_date")[
+            :30
+        ]
 
         return context
 

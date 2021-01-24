@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('match', '0002_auto_20210123_1950'),
+        ("match", "0002_auto_20210123_1950"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='player',
-            name='tower_damage',
+            model_name="player",
+            name="tower_damage",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='match',
-            name='parsed_level',
-            field=models.TextField(choices=[('1', 'Known'), ('2', 'Fetched'), ('3', 'Replay parsed')], default='1', max_length=1),
+            model_name="match",
+            name="parsed_level",
+            field=models.TextField(
+                choices=[("1", "Known"), ("2", "Fetched"), ("3", "Replay parsed")],
+                default="1",
+                max_length=1,
+            ),
         ),
     ]

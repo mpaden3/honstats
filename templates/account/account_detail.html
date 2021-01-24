@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{ object.nickname }} - Overview - Honstats {% endblock %}
 {% block content %}
+    <nav class="nav">
+        <a class="nav-item nav-link account-link" href="#">Overview</a>
+        <a class="nav-item nav-link account-link" href="{% url 'match-list' %}?account_id={{ object.account_id }}">Matches</a>
+        <a class="nav-item nav-link disabled" href="#">Heroes</a>
+    </nav>
     <div class="match-info card card-body bg-dark text-light">
         <h2>Acount overview: <span class="hellbourne">{{ object.nickname }}</span></h2>
         <table>
@@ -24,9 +29,9 @@
     <table class="table table-striped table-dark">
         <thead>
         <tr>
-            <th scope="col">Status</th>
             <th scope="col">Hero</th>
             <th scope="col">Result</th>
+            <th scope="col">Stats</th>
             <th scope="col">Match ID</th>
             <th scope="col">Date</th>
         </tr>
@@ -34,15 +39,21 @@
         <tbody>
         {% for player in matches %}
             <tr>
-                <td>{{ player.match.get_parsed_level_display }}</td>
                 <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
                 <td>
-                    {% if player.match.is_fetched %}
-                        {% if player.is_winner %}<span class="legion">Win</span> {% else %}
-                            <span class="hellbourne">Loss</span> {% endif %}
-                        {% if player.mmr_diff > 0 %}<span class="legion">(+{{ player.mmr_diff }})</span> {% else %}
-                            <span class="hellbourne">({{ player.mmr_diff }})</span> {% endif %}
+                    {% if player.is_winner %}<span class="legion">Win</span>
+                    {% else %}
+                        <span class="hellbourne">Loss</span>
                     {% endif %}
+                    {% if player.mmr_diff and player.mmr_diff > 0 %}
+                        <span class="legion">(+{{ player.mmr_diff }})</span>
+                    {% elif player.mmr_diff and player.mmr_diff < 0 %}
+                        <span class="hellbourne">({{ player.mmr_diff }})</span>
+                    {% endif %}
+                </td>
+                <td><span class="span-kills">{{ player.hero_kills }}</span> /
+                    <span class="span-deaths">{{ player.deaths }}</span> /
+                    <span class="span-assists">{{ player.hero_assists }}</span>
                 </td>
                 <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
                 </td>

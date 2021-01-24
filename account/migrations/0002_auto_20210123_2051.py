@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0001_initial'),
+        ("account", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='account',
-            options={'ordering': ['nickname']},
+            name="account",
+            options={"ordering": ["nickname"]},
         ),
         migrations.AlterField(
-            model_name='account',
-            name='nickname',
+            model_name="account",
+            name="nickname",
             field=models.CharField(db_index=True, max_length=128, null=True),
         ),
     ]

@@ -35,16 +35,24 @@
 .legion {
     color: forestgreen;
 }
-.navbar{
+
+.navbar {
     margin-bottom: 50px;
 }
-.card{
+
+.card {
     border-radius: 0;
 }
-body{
+
+body {
     background-color: #212529;
     color: white;
 }
-.match-td{
+
+.match-td {
     vertical-align: center;
+}
+
+.main-search {
+    margin-left: 30px;
 }

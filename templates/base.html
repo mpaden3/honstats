@@ -21,11 +21,14 @@
         <div class="navbar-nav">
             <a class="nav-item nav-link" href="{% url 'match-list' %}">Matches</a>
             <a class="nav-item nav-link" href="{% url 'account-list' %}">Players</a>
-            <a class="nav-item nav-link" href="{% url 'about' %}">Items</a>
-            <a class="nav-item nav-link" href="{% url 'about' %}">Heroes</a>
+            <a class="nav-item nav-link disabled" href="{% url 'about' %}">Items</a>
+            <a class="nav-item nav-link disabled" href="{% url 'about' %}">Heroes</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
-            <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>
+            <a class="nav-item nav-link disabled" href="{% url 'qna' %}">Q&A</a>
         </div>
+                                {% block search_form %}
+        <span></span>
+    {% endblock %}
     </div>
     {% if user.is_authenticated %}
     <div class="my-2 my-lg-0 navbar-nav">

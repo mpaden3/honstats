@@ -8,27 +8,36 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Account',
+            name="Account",
             fields=[
-                ('created', django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created')),
-                ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
-                ('account_id', models.IntegerField(primary_key=True, serialize=False)),
-                ('nickname', models.CharField(max_length=128, null=True)),
-                ('super_id', models.IntegerField(null=True)),
-                ('games_played', models.IntegerField(null=True)),
-                ('total_games_played', models.IntegerField(null=True)),
-                ('create_date', models.DateField(null=True)),
-                ('last_activity', models.DateField(null=True)),
-                ('fetched_date', models.DateTimeField(null=True)),
+                (
+                    "created",
+                    django_extensions.db.fields.CreationDateTimeField(
+                        auto_now_add=True, verbose_name="created"
+                    ),
+                ),
+                (
+                    "modified",
+                    django_extensions.db.fields.ModificationDateTimeField(
+                        auto_now=True, verbose_name="modified"
+                    ),
+                ),
+                ("account_id", models.IntegerField(primary_key=True, serialize=False)),
+                ("nickname", models.CharField(max_length=128, null=True)),
+                ("super_id", models.IntegerField(null=True)),
+                ("games_played", models.IntegerField(null=True)),
+                ("total_games_played", models.IntegerField(null=True)),
+                ("create_date", models.DateField(null=True)),
+                ("last_activity", models.DateField(null=True)),
+                ("fetched_date", models.DateTimeField(null=True)),
             ],
             options={
-                'get_latest_by': 'modified',
-                'abstract': False,
+                "get_latest_by": "modified",
+                "abstract": False,
             },
         ),
     ]

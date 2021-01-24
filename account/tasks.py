@@ -1,6 +1,7 @@
 import os
 
 import requests
+from django.http import Http404
 from phpserialize import loads
 
 from account.utils import update_or_create_account_from_stats
@@ -19,9 +20,24 @@ def fetch_player_data(nickname):
         request_data,
     ).content
     data = loads(response, decode_strings=True)
-    if "account_id" in data:
-        return update_or_create_account_from_stats(data)
-    return None
+    if "account_id" not in data:
+        raise Http404
+
+    request_data = {
+        "f": "match_history_overview",
+        "table": "campaign",
+        "nickname": nickname,
+        "num": 100,
+        "current_season": 1,
+    }
+
+    response = requests.post(
+        CLIENT_REQUESTER_URL,
+        request_data,
+    ).content
+    match_data = loads(response, decode_strings=True)
+
+    return update_or_create_account_from_stats(data, match_data)
 
 
 def fetch_dummy_player_data():
