@@ -1,6 +1,9 @@
+from zipfile import BadZipFile
+
 from django.http import Http404
 from django.views.generic import DetailView, ListView
 
+from log_parser.tasks import parse_match_data
 from match.models import Match
 from match.tasks import fetch_match_data
 
@@ -20,6 +23,13 @@ class MatchDetailView(DetailView):
         obj: Match = super(MatchDetailView, self).get_object(queryset=queryset)
         if obj.parsed_level == Match.KNOWN:
             obj = fetch_match_data(obj.match_id)
+
+        if not obj.is_parsed():
+            try:
+                obj = parse_match_data(obj.match_id)
+            except Exception:
+                obj.parsed_level = Match.REPLAY
+                obj.save()
 
         return obj
 

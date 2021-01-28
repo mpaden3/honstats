@@ -35,6 +35,9 @@ class Match(TimeStampedModel):
     )
     parsed_level = models.TextField(max_length=1, choices=PARSED_LEVELS, default=KNOWN)
 
+    # Parsed data
+    networth_diff = models.JSONField(null=True)
+
     class Meta:
         ordering = ["-match_id"]
 
@@ -48,9 +51,7 @@ class Match(TimeStampedModel):
         return self.parsed_level == self.FETCHED
 
     def is_parsed(self):
-        if self.parsed_level == self.REPLAY:
-            return "Yes"
-        return "No"
+        return self.parsed_level == self.REPLAY
 
     def __str__(self):
         if self.match_name:

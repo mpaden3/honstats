@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
+{% load match_extras %}
 {% block title %}
     {{ object.match_name }} - Overview
 {% endblock %}
@@ -22,7 +24,7 @@
                 <td>Winner: {{ object.get_winning_team_display }}</td>
             </tr>
             <tr>
-                <td>Parsed: {{ object.is_parsed }}</td>
+                <td>Parsed: {{ object.is_parsed|humanize_bool }}</td>
             </tr>
         </table>
 
@@ -34,12 +36,12 @@
             <th scope="col">Player Name</th>
             <th style="width: 100px" scope="col">K / D / A</th>
             <th scope="col">KD Ratio</th>
-            <th style="width: 100px"  scope="col">LH / DN</th>
+            <th style="width: 100px" scope="col">LH / DN</th>
             <th scope="col">Networth</th>
             <th style="width: 50px" scope="col">Hero Damage</th>
-            <th style="width: 50px"  scope="col">Tower Damage</th>
-            <th style="width: 30px"  scope="col">Wards</th>
-            <th style="width: 350px"  scope="col">Items</th>
+            <th style="width: 50px" scope="col">Tower Damage</th>
+            <th style="width: 30px" scope="col">Wards</th>
+            <th style="width: 350px" scope="col">Items</th>
         </tr>
         </thead>
         <tbody>
@@ -84,9 +86,9 @@
                     <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
                     <td><a class="account-link"
                            href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
-                                        {% if player.disconnect %}
-                        <span class="hellbourne"> DC</span>
-                    {% endif %}
+                        {% if player.disconnect %}
+                            <span class="hellbourne"> DC</span>
+                        {% endif %}
                     </td>
                     <td><span class="span-kills">{{ player.hero_kills }}</span> /
                         <span class="span-deaths">{{ player.deaths }}</span> /
@@ -107,6 +109,83 @@
         {% endfor %}
         </tbody>
     </table>
+    {% if object.is_parsed %}
+    <div class="legion">
+    Legion
+    </div>
+    <canvas id="line-chart"></canvas>
+        <div class="hellbourne">
+    Hellbourne
+    </div>
+    <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
+    {{ match.networth_diff|json_script:"networth" }}
+    <script>
+        var networth = JSON.parse(document.getElementById('networth').textContent);
+        networth = JSON.parse(networth);
 
+        function msToTime(s) {
 
+            // Pad to 2 or 3 digits, default is 2
+            function pad(n, z) {
+                z = z || 2;
+                return ('00' + n).slice(-z);
+            }
+
+            var ms = s % 1000;
+            s = (s - ms) / 1000;
+            var secs = s % 60;
+            s = (s - secs) / 60;
+            var mins = s % 60;
+            var hrs = (s - mins) / 60;
+
+            if (hrs > 0) {
+                return pad(mins) + ':' + pad(mins) + ':' + pad(secs);
+            }
+
+            return pad(mins) + ':' + pad(secs);
+        }
+
+        new Chart(document.getElementById("line-chart"), {
+            type: 'line',
+            data: {
+                labels: Object.keys(networth).map(msToTime),
+                datasets: [{
+                    data: Object.values(networth),
+                    label: "Networth",
+                    borderColor: "darkgoldenrod",
+                    fill: false,
+                    lineTension: 0,
+                }
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 20,
+                            maxRotation: 0,
+                            minRotation: 0,
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Networth'
+                        },
+                        gridLines: {
+                            zeroLineWidth: 0.5,
+                            zeroLineColor: "#FFF"
+                        }
+                    }
+                    ]
+                }
+            }
+        });
+    </script>
+    {% endif %}
 {% endblock %}
