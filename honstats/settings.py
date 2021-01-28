@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "account",
     "match",
     "game_data",
+    "hon_api",
 ]
 
 MIDDLEWARE = [
