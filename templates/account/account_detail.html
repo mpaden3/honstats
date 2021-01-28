@@ -7,22 +7,22 @@
         <a class="nav-item nav-link disabled" href="#">Heroes</a>
     </nav>
     <div class="match-info card card-body bg-dark text-light">
-        <h2>Acount overview: <span class="hellbourne">{{ object.nickname }}</span></h2>
+        <h1><span class="hellbourne">{{ object.nickname }}</span></h1>
         <table>
             <tr>
-                <td>Account ID: {{ object.account_id }}</td>
+                <td>Account ID: <span class="span-networth">{{ object.account_id }}</span></td>
             </tr>
             <tr>
-                <td>Games Played: {{ object.games_played }}</td>
+                <td>Season Games Played: <span class="span-networth">{{ object.games_played }}</span></td>
             </tr>
             <tr>
-                <td>Total Games Played: {{ object.total_games_played }}</td>
+                <td>Total Games Played: <span class="span-networth">{{ object.total_games_played }}</span></td>
             </tr>
             <tr>
-                <td>Last Activity: {{ object.last_activity|date:'F d, Y' }}</td>
+                <td>Last Activity: <span class="span-networth">{{ object.last_activity|date:'F d, Y' }}</span></td>
             </tr>
             <tr>
-                <td>Updated: {{ object.fetched_date }}</td>
+                <td>Updated: <span class="span-networth">{{ object.fetched_date }}</span></td>
             </tr>
         </table>
     </div>
@@ -30,8 +30,9 @@
         <thead>
         <tr>
             <th scope="col">Hero</th>
-            <th scope="col">Result</th>
             <th scope="col">Stats</th>
+            <th scope="col">Result</th>
+            <th scope="col">Avg MMR</th>
             <th scope="col">Match ID</th>
             <th scope="col">Date</th>
         </tr>
@@ -40,6 +41,10 @@
         {% for player in matches %}
             <tr>
                 <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
+                <td><span class="span-kills">{{ player.hero_kills }}</span> /
+                    <span class="span-deaths">{{ player.deaths }}</span> /
+                    <span class="span-assists">{{ player.hero_assists }}</span>
+                </td>
                 <td>
                     {% if player.is_winner %}<span class="legion">Win</span>
                     {% else %}
@@ -51,10 +56,7 @@
                         <span class="hellbourne">({{ player.mmr_diff }})</span>
                     {% endif %}
                 </td>
-                <td><span class="span-kills">{{ player.hero_kills }}</span> /
-                    <span class="span-deaths">{{ player.deaths }}</span> /
-                    <span class="span-assists">{{ player.hero_assists }}</span>
-                </td>
+            <td>{{ player.match.average_mmr|default_if_none:"-"  }}</td>
                 <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
                 </td>
                 <td>{{ player.match.match_date }}</td>

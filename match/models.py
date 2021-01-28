@@ -5,12 +5,12 @@ from django_extensions.db.models import TimeStampedModel
 from account.models import Account
 from game_data.models import Hero, Item
 
-TEAM_EMPTY = "0"
-TEAM_LEGION = "1"
-TEAM_HELLBOURNE = "2"
-
 
 class Match(TimeStampedModel):
+    TEAM_EMPTY = "0"
+    TEAM_LEGION = "1"
+    TEAM_HELLBOURNE = "2"
+
     KNOWN = "1"
     FETCHED = "2"
     REPLAY = "3"
@@ -65,7 +65,7 @@ class Match(TimeStampedModel):
         total = 0.0
         for player in self.player_set.all():
             total += player.mmr_before
-        return round(total / 10, 2)
+        return round(total / 10)
 
 
 class Player(TimeStampedModel):
@@ -74,11 +74,11 @@ class Player(TimeStampedModel):
         Account, on_delete=models.DO_NOTHING, related_name="matches"
     )
     TEAM = [
-        (TEAM_EMPTY, "Empty"),
-        (TEAM_LEGION, "Legion"),
-        (TEAM_HELLBOURNE, "Hellbourne"),
+        (Match.TEAM_EMPTY, "Empty"),
+        (Match.TEAM_LEGION, "Legion"),
+        (Match.TEAM_HELLBOURNE, "Hellbourne"),
     ]
-    team = models.TextField(max_length=1, choices=TEAM, default=TEAM_EMPTY)
+    team = models.TextField(max_length=1, choices=TEAM, default=Match.TEAM_EMPTY)
     position = models.TextField(max_length=1, null=True)
     level = models.IntegerField(null=True)
     hero = models.ForeignKey(Hero, on_delete=models.DO_NOTHING, null=True)

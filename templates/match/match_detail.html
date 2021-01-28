@@ -9,25 +9,21 @@
     <div class="match-info card card-body bg-dark text-light">
         <table>
             <tr>
-                <td><h2 class="hellbourne">{{ object.match_name }}</h2></td>
+                <td><h1 class="hellbourne">{{ object.match_name }}</h1></td>
             </tr>
             <tr>
-                <td>Match date: {{ object.match_date }}</td>
+                <td><h5>{{ object.match_date }}</h5></td>
             </tr>
             <tr>
-                <td>Duration: {{ object.duration_format }}</td>
+                <td>Duration: <span class="span-networth">{{ object.duration_format }}</span></td>
             </tr>
             <tr>
-                <td>Average MMR: {{ object.average_mmr }}</td>
+                <td>Average MMR: <span class="span-networth">{{ object.average_mmr }}</span></td>
             </tr>
             <tr>
-                <td>Winner: {{ object.get_winning_team_display }}</td>
-            </tr>
-            <tr>
-                <td>Parsed: {{ object.is_parsed|humanize_bool }}</td>
+                <td>Parsed: <span class="span-networth">{{ object.is_parsed|humanize_bool }}</span></td>
             </tr>
         </table>
-
     </div>
     <table class="table table-striped table-dark">
         <thead>
@@ -46,7 +42,9 @@
         </thead>
         <tbody>
         <tr>
-            <th class="legion" scope="col">Legion</th>
+            <th class="legion" scope="col">Legion
+                {% if match.winning_team == match.TEAM_LEGION %}<span class="span-networth font-italic">(winner)</span>
+            {% endif %}</th>
         </tr>
         {% for player in players %}
             {% if player.team == "1" %}
@@ -78,7 +76,9 @@
         {% endfor %}
 
         <tr>
-            <th class="hellbourne" scope="col">Hellbourne</th>
+            <th class="hellbourne" scope="col">Hellbourne
+                            {% if match.winning_team == match.TEAM_HELLBOURNE %}<span class="span-networth font-italic">(winner)</span>
+            {% endif %}</th>
         </tr>
         {% for player in players %}
             {% if player.team == "2" %}
