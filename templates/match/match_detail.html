@@ -6,6 +6,7 @@
     {{ object.match_name }} - Overview
 {% endblock %}
 {% block content %}
+    <div class="match-container">
     <div class="match-info card card-body bg-dark text-light">
         <table>
             <tr>
@@ -30,8 +31,8 @@
         <tr>
             <th style="width: 300px" scope="col">HERO</th>
             <th scope="col">Player Name</th>
-            <th style="width: 100px" scope="col">K / D / A</th>
-            <th scope="col">KD Ratio</th>
+            <th style="width: 110px" scope="col">K / D / A</th>
+            <th scope="col">Level</th>
             <th style="width: 100px" scope="col">LH / DN</th>
             <th scope="col">Networth</th>
             <th style="width: 50px" scope="col">Hero Damage</th>
@@ -44,12 +45,14 @@
         <tr>
             <th class="legion" scope="col">Legion
                 {% if match.winning_team == match.TEAM_LEGION %}<span class="span-networth font-italic">(winner)</span>
-            {% endif %}</th>
+                {% endif %}</th>
         </tr>
         {% for player in players %}
             {% if player.team == "1" %}
                 <tr>
-                    <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
+                    <td><span class="player-color-box"
+                              style="background-color: {{ player.position|player_color }}"></span> {{ player.hero.image_html|safe }}
+                        <span> {{ player.hero.name }}</span></td>
                     <td>
                         <a class="account-link"
                            href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
@@ -60,7 +63,7 @@
                     <td><span class="span-kills">{{ player.hero_kills }}</span> /
                         <span class="span-deaths">{{ player.deaths }}</span> /
                         <span class="span-assists">{{ player.hero_assists }}</span></td>
-                    <td>{{ player.get_kd }}</td>
+                    <td><span class="span-level">{{ player.level }}</span></td>
                     <td>{{ player.lasthits }} / {{ player.denies }}</td>
                     <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
                     <td><span>{{ player.hero_damage|intcomma }}</span></td>
@@ -77,13 +80,16 @@
 
         <tr>
             <th class="hellbourne" scope="col">Hellbourne
-                            {% if match.winning_team == match.TEAM_HELLBOURNE %}<span class="span-networth font-italic">(winner)</span>
-            {% endif %}</th>
+                {% if match.winning_team == match.TEAM_HELLBOURNE %}
+                    <span class="span-networth font-italic">(winner)</span>
+                {% endif %}</th>
         </tr>
         {% for player in players %}
             {% if player.team == "2" %}
                 <tr>
-                    <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
+                    <td><span class="player-color-box"
+                              style="background-color: {{ player.position|player_color }}"></span> {{ player.hero.image_html|safe }}
+                        <span> {{ player.hero.name }}</span></td>
                     <td><a class="account-link"
                            href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
                         {% if player.disconnect %}
@@ -109,83 +115,258 @@
         {% endfor %}
         </tbody>
     </table>
+    </div>
     {% if object.is_parsed %}
-    <div class="legion">
-    Legion
-    </div>
-    <canvas id="line-chart"></canvas>
-        <div class="hellbourne">
-    Hellbourne
-    </div>
-    <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
-    {{ match.networth_diff|json_script:"networth" }}
-    <script>
-        var networth = JSON.parse(document.getElementById('networth').textContent);
-        networth = JSON.parse(networth);
+        <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
+        <div class="graph-div" id="networth-xp-graph">
+            <div class="legion">
+                Legion
+            </div>
+            <canvas id="net-xp-chart"></canvas>
+            <div class="hellbourne">
+                Hellbourne
+            </div>
+            {{ match.networth_diff|json_script:"networth" }}
+            {{ match.exp_diff|json_script:"experience" }}
+            <script>
+                var networth = JSON.parse(document.getElementById('networth').textContent);
+                networth = JSON.parse(networth);
 
-        function msToTime(s) {
+                var experience = JSON.parse(document.getElementById('experience').textContent);
+                experience = JSON.parse(experience);
 
-            // Pad to 2 or 3 digits, default is 2
-            function pad(n, z) {
-                z = z || 2;
-                return ('00' + n).slice(-z);
-            }
+                function msToTime(s) {
 
-            var ms = s % 1000;
-            s = (s - ms) / 1000;
-            var secs = s % 60;
-            s = (s - secs) / 60;
-            var mins = s % 60;
-            var hrs = (s - mins) / 60;
+                    // Pad to 2 or 3 digits, default is 2
+                    function pad(n, z) {
+                        z = z || 2;
+                        return ('00' + n).slice(-z);
+                    }
 
-            if (hrs > 0) {
-                return pad(mins) + ':' + pad(mins) + ':' + pad(secs);
-            }
+                    var ms = s % 1000;
+                    s = (s - ms) / 1000;
+                    var secs = s % 60;
+                    s = (s - secs) / 60;
+                    var mins = s % 60;
+                    var hrs = (s - mins) / 60;
 
-            return pad(mins) + ':' + pad(secs);
-        }
+                    if (hrs > 0) {
+                        return pad(mins) + ':' + pad(mins) + ':' + pad(secs);
+                    }
 
-        new Chart(document.getElementById("line-chart"), {
-            type: 'line',
-            data: {
-                labels: Object.keys(networth).map(msToTime),
-                datasets: [{
-                    data: Object.values(networth),
-                    label: "Team Networth Difference",
-                    borderColor: "darkgoldenrod",
-                    fill: false,
-                    lineTension: 0,
+                    return pad(mins) + ':' + pad(secs);
                 }
-                ]
-            },
-            options: {
-                scales: {
-                    xAxes: [{
-                        ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 20,
-                            maxRotation: 0,
-                            minRotation: 0,
+
+                new Chart(document.getElementById("net-xp-chart"), {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(networth).map(msToTime),
+                        datasets: [{
+                            data: Object.values(networth),
+                            label: "Team Networth Difference",
+                            borderColor: "darkgoldenrod",
+                            fill: false,
+                            lineTension: 0,
                         },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Networth'
+                            {
+                                data: Object.values(experience),
+                                label: "Team Experience Difference",
+                                borderColor: "deepskyblue",
+                                fill: false,
+                                lineTension: 0,
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 20,
+                                    maxRotation: 0,
+                                    minRotation: 0,
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Time'
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Value'
+                                },
+                                gridLines: {
+                                    zeroLineWidth: 0.5,
+                                    zeroLineColor: "#FFF"
+                                }
+                            }
+                            ]
                         },
-                        gridLines: {
-                            zeroLineWidth: 0.5,
-                            zeroLineColor: "#FFF"
+                        elements: {
+                            point: {
+                                radius: 0
+                            }
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        hover: {
+                            mode: 'index',
+                            intersect: false
                         }
                     }
-                    ]
+                });
+            </script>
+        </div>
+        <div class="graph-div" id="player-networth-graph">
+            <canvas id="player-net-chart"></canvas>
+            {% for player in players %}
+                {% with player.position|add:"_player_networth" as player_id %}
+                    {{ player.networth_time|json_script:player_id }}
+                {% endwith %}
+            {% endfor %}
+            <script>
+                function msToTime(s) {
+
+                    // Pad to 2 or 3 digits, default is 2
+                    function pad(n, z) {
+                        z = z || 2;
+                        return ('00' + n).slice(-z);
+                    }
+
+                    var ms = s % 1000;
+                    s = (s - ms) / 1000;
+                    var secs = s % 60;
+                    s = (s - secs) / 60;
+                    var mins = s % 60;
+                    var hrs = (s - mins) / 60;
+
+                    if (hrs > 0) {
+                        return pad(mins) + ':' + pad(mins) + ':' + pad(secs);
+                    }
+
+                    return pad(mins) + ':' + pad(secs);
                 }
-            }
-        });
-    </script>
+
+                function player_color(position) {
+                    switch (position) {
+                        case "0":
+                            return "#003ce9";
+                        case "1":
+                            return "#7cfff1";
+                        case "2":
+                            return "#613294";
+                        case "3":
+                            return "#fffc01";
+                        case "4":
+                            return "#fe8a0e";
+                        case "5":
+                            return "#e55bb0";
+                        case "6":
+                            return "#959697";
+                        case "7":
+                            return "#6aabff";
+                        case "8":
+                            return "#106246";
+                        case "9":
+                            return "#ad5c33";
+
+                        default:
+                            return "red"
+                    }
+                }
+
+                var heroes = [
+                    {% for player in players %}
+                        "{{ player.hero.name }}",
+                    {%  endfor %}
+                ]
+
+                var datasets = []
+                for (var i = 0; i < 10; i++) {
+                    var player_data = JSON.parse(document.getElementById(i + '_player_networth').textContent);
+                    player_data = JSON.parse(player_data);
+
+                    var item = {
+                        data: Object.values(player_data),
+                        label: heroes[i],
+                        borderColor: player_color(i.toString()),
+                        fill: false,
+                        lineTension: 0,
+                    }
+                    datasets.push(item)
+                }
+
+
+                new Chart(document.getElementById("player-net-chart"), {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(player_data).map(msToTime),
+                        datasets: datasets
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 20,
+                                    maxRotation: 0,
+                                    minRotation: 0,
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Time'
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Networth'
+                                },
+                                gridLines: {
+                                    zeroLineWidth: 0.5,
+                                    zeroLineColor: "#FFF"
+                                }
+                            }
+                            ]
+                        },
+                        elements: {
+                            point: {
+                                radius: 0
+                            }
+                        },
+                        tooltips: {
+                            backgroundColor: "rgba(20, 20, 20, 0.8)",
+                            multiKeyBackground: "grey",
+                            titleMarginBottom: 12,
+                            titleAlign: "center",
+                            titleFontSize: 20,
+                            bodySpacing: 10,
+                            xPadding: 15,
+                            yPadding: 15,
+                            cornerRadius: 3,
+                            bodyFontSize: 15,
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                labelColor: function (tooltipItem, chart) {
+                                    return {
+                                        backgroundColor: chart.tooltip._data.datasets[tooltipItem.datasetIndex].borderColor
+                                    };
+                                }
+                            },
+                            itemSort: (a, b) => b.yLabel - a.yLabel
+                        },
+                        hover: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                });
+            </script>
+
+        </div>
     {% endif %}
 {% endblock %}

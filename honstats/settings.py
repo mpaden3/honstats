@@ -30,7 +30,6 @@ DEBUG = os.environ.get("DEBUG") == "TRUE"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
 # Domain
-HON_COOKIE = os.environ.get("HON_COOKIE")
 CLIENT_REQUESTER_URL = (
     "http://masterserver.naeu.heroesofnewerth.com/client_requester.php"
 )

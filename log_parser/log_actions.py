@@ -14,6 +14,7 @@ ITEM_ASSEMBLE = "ITEM_ASSEMBLE"
 ITEM_SELL = "ITEM_SELL"
 GOLD_EARNED = "GOLD_EARNED"
 GOLD_LOST = "GOLD_LOST"
+EXP_EARNED = "EXP_EARNED"
 GAME_END = "GAME_END"
 GAME_CONCEDE = "GAME_CONCEDE"
 
@@ -33,9 +34,11 @@ def parse_log_entry(line: str):
     if args[0] == ITEM_SELL:
         return ItemSellAction(line)
     if args[0] == GOLD_EARNED:
-        if args[4].startswith("gold"):
+        if len(args) < 7:
             return None
         return GoldEarnedAction(line)
+    if args[0] == EXP_EARNED:
+        return ExpEarnedAction(line)
     if args[0] == GOLD_LOST:
         return GoldLostAction(line)
     if args[0] == GAME_END or args[0] == GAME_CONCEDE:
@@ -55,6 +58,13 @@ def get_passive_gold_at_time(time: int):
 
 
 class GoldChange:
+    def __init__(self, time, value):
+        super().__init__()
+        self.time = time
+        self.value = value
+
+
+class ExpChange:
     def __init__(self, time, value):
         super().__init__()
         self.time = time
@@ -93,6 +103,7 @@ class PlayerData:
         self.player_num = player_num
         self.team = None
         self.gold_changes = []
+        self.exp_changes = []
         self.items = []
 
     # helper functions
@@ -117,6 +128,17 @@ class PlayerData:
                 gold += item.value
         return gold
 
+    def get_exp_at_time(self, time=None):
+        if time is None:
+            time = sys.maxsize
+
+        total = 0
+        for exp_change in self.exp_changes:
+            if exp_change.time > time:
+                break
+            total += exp_change.value
+        return total
+
     # modifying functions
     def sell_item(self, time, item_code, value):
         self.gold_changes.append(GoldChange(time, value))
@@ -133,6 +155,9 @@ class PlayerData:
     def earn_gold(self, time, value):
         self.gold_changes.append(GoldChange(time, value))
 
+    def earn_exp(self, time, value):
+        self.exp_changes.append(ExpChange(time, value))
+
     def lose_gold(self, time, value):
         self.gold_changes.append(GoldChange(time, -value))
 
@@ -145,15 +170,30 @@ class MatchData:
     # main function
     def dump_data(self, match):
 
+        interval = 40000
+
         networth_diff = {}
-        for i in range(0, self.end_time, 40000):
+        for i in range(0, self.end_time, interval):
             networth_diff[i] = self.get_networth_diff(i)
         networth_diff[self.end_time] = self.get_networth_diff(self.end_time)
         match.networth_diff = json.dumps(networth_diff)
 
+        exp_diff = {}
+        for i in range(0, self.end_time, interval):
+            exp_diff[i] = self.get_exp_diff(i)
+        exp_diff[self.end_time] = self.get_exp_diff(self.end_time)
+        match.exp_diff = json.dumps(exp_diff)
+
         for player in match.player_set.all():
             for _, player_data in self.player_datas.items():
                 if player_data.account_id == player.account_id:
+
+                    networth_time = {}
+                    for i in range(0, self.end_time, interval):
+                        networth_time[i] = player_data.get_networth_at_time(i)
+                    networth_time[self.end_time] = player_data.get_networth_at_time(self.end_time)
+                    player.networth_time = json.dumps(networth_time)
+
                     player.networth = player_data.get_networth_at_time(self.end_time)
                     player.save()
 
@@ -172,11 +212,21 @@ class MatchData:
                 total += player_data.get_networth_at_time(time)
         return total
 
+    def get_team_exp(self, team, time=None):
+        total = 0.0
+        for player_num, player_data in self.player_datas.items():
+            if player_data.team == team:
+                total += player_data.get_exp_at_time(time)
+        return total
+
     def get_gold_diff(self, time=None):
-        return self.get_team_gold(2, time) - self.get_team_gold(1, time)
+        return self.get_team_gold(1, time) - self.get_team_gold(2, time)
 
     def get_networth_diff(self, time=None):
         return self.get_team_networth(1, time) - self.get_team_networth(2, time)
+
+    def get_exp_diff(self, time=None):
+        return round(self.get_team_exp(1, time) - self.get_team_exp(2, time))
 
     # modifying functions
     def add_player(self, action):
@@ -208,6 +258,9 @@ class MatchData:
 
     def gold_lost(self, action):
         self.player_datas[action.player_num].lose_gold(action.time, action.value)
+
+    def exp_earned(self, action):
+        self.player_datas[action.player_num].earn_exp(action.time, action.experience)
 
 
 class PlayerConnectAction(LogAction):
@@ -292,6 +345,19 @@ class GoldEarnedAction(LogAction):
 
     def apply(self, match_data: MatchData):
         match_data.gold_earned(self)
+
+
+# EXP_EARNED time:32300 x:7512 y:7345 z:-120 player:7 team:1 experience:20.47 source:"Creep_HellbourneMelee"
+# EXP_EARNED time:98950 x:13983 y:1672 z:128 player:5 team:2 experience:25.00 source:"Hero_Fairy" owner:0
+class ExpEarnedAction(LogAction):
+
+    def __init__(self, line: str):
+        self.time = int(parse_arg_val(line, "time"))
+        self.player_num = int(parse_arg_val(line, "player"))
+        self.experience = float(parse_arg_val(line, "experience"))
+
+    def apply(self, match_data: MatchData):
+        match_data.exp_earned(self)
 
 
 # GOLD_LOST time:858450 x:8008 y:6468 z:0 player:7 team:1 source:"Hero_Tarot" owner:5 gold:223

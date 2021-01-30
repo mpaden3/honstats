@@ -37,6 +37,7 @@ class Match(TimeStampedModel):
 
     # Parsed data
     networth_diff = models.JSONField(null=True)
+    exp_diff = models.JSONField(null=True)
 
     class Meta:
         ordering = ["-match_id"]
@@ -99,6 +100,10 @@ class Player(TimeStampedModel):
     final_items = models.JSONField(default=dict)
     gpm = models.IntegerField(null=True)
     apm = models.IntegerField(null=True)
+
+    # parsed fields
+
+    networth_time = models.JSONField(null=True)
 
     def is_winner(self):
         return self.match.winning_team == self.team
