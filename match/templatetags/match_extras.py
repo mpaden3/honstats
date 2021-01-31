@@ -54,9 +54,9 @@ def pad(n):
 
 @register.filter
 def hero_icon(hero_id):
-    return f"/img/hero/{hero_id}.jpg"
+    return f"img/hero/{hero_id}.jpg"
 
 
 @register.filter
 def item_icon(item_code):
-    return f"/img/item/{item_code}.jpg"
+    return f"img/item/{item_code}.jpg"
