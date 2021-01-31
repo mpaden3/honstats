@@ -52,7 +52,11 @@
                 {% if player.team == "1" %}
                     <tr>
                         <td><span class="player-color-box"
-                                  style="background-color: {{ player.position|player_color }}"></span> {{ player.hero.image_html|safe }}
+                                  style="background-color: {{ player.position|player_color }}"></span>
+
+
+                            <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
+                                 title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
                             <span> {{ player.hero.name }}</span></td>
                         <td>
                             <a class="account-link"
@@ -73,14 +77,15 @@
                         <td>
                             {% for item in player.get_items %}
                                 <span class="icon-container">
-                                {{ item.image_html|safe }}
-                                {% if match.is_parsed %}
-                                {% for item_data in player.get_item_times %}
-                                    {% if item_data.item_code == item.code %}
-                                        <div class="item_time">{{ item_data.item_time|msec_print }}</div>
+                                    <img src="{% static item.code|item_icon %}" class="item-icon"
+                                         title="{{ item.name }}" alt="{{ item.name }}"/>
+                                    {% if match.is_parsed %}
+                                        {% for item_data in player.get_item_times %}
+                                            {% if item_data.item_code == item.code %}
+                                                <div class="item_time">{{ item_data.item_time|msec_print }}</div>
+                                            {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                {% endfor %}
-                                {% endif %}
                                 </span>
                             {% endfor %}
                         </td>
@@ -98,7 +103,9 @@
                 {% if player.team == "2" %}
                     <tr>
                         <td><span class="player-color-box"
-                                  style="background-color: {{ player.position|player_color }}"></span> {{ player.hero.image_html|safe }}
+                                  style="background-color: {{ player.position|player_color }}"></span>
+                            <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
+                                 title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
                             <span> {{ player.hero.name }}</span></td>
                         <td><a class="account-link"
                                href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
@@ -118,14 +125,15 @@
                         <td>
                             {% for item in player.get_items %}
                                 <span class="icon-container">
-                                {{ item.image_html|safe }}
-                                {% if match.is_parsed %}
-                                {% for item_data in player.get_item_times %}
-                                    {% if item_data.item_code == item.code %}
-                                        <div class="item_time">{{ item_data.item_time|msec_print }}</div>
+                                    <img src="{% static item.code|item_icon %}" class="item-icon"
+                                         title="{{ item.name }}" alt="{{ item.name }}"/>
+                                    {% if match.is_parsed %}
+                                        {% for item_data in player.get_item_times %}
+                                            {% if item_data.item_code == item.code %}
+                                                <div class="item_time">{{ item_data.item_time|msec_print }}</div>
+                                            {% endif %}
+                                        {% endfor %}
                                     {% endif %}
-                                {% endfor %}
-                                {% endif %}
                                 </span>
                             {% endfor %}
                         </td>

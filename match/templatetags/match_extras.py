@@ -47,5 +47,16 @@ def msec_print(s):
         return pad(hrs) + ':' + pad(mins) + ':' + pad(secs)
     return pad(mins) + ':' + pad(secs)
 
+
 def pad(n):
     return ('00' + str(round(n)))[-2:]
+
+
+@register.filter
+def hero_icon(hero_id):
+    return f"/img/hero/{hero_id}.jpg"
+
+
+@register.filter
+def item_icon(item_code):
+    return f"/img/item/{item_code}.jpg"

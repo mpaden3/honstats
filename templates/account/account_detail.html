@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load match_extras %}
+{% load static %}
 {% block title %}{{ object.nickname }} - Overview - Honstats {% endblock %}
 {% block content %}
     <nav class="nav">
@@ -40,7 +42,8 @@
         <tbody>
         {% for player in matches %}
             <tr>
-                <td>{{ player.hero.image_html|safe }} {{ player.hero.name }}</td>
+                <td><img src="{% static player.hero_id|hero_icon %}" class="item-icon"
+                         title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/> {{ player.hero.name }}</td>
                 <td><span class="span-kills">{{ player.hero_kills }}</span> /
                     <span class="span-deaths">{{ player.deaths }}</span> /
                     <span class="span-assists">{{ player.hero_assists }}</span>
@@ -56,7 +59,7 @@
                         <span class="hellbourne">({{ player.mmr_diff }})</span>
                     {% endif %}
                 </td>
-            <td>{{ player.match.average_mmr|default_if_none:"-"  }}</td>
+                <td>{{ player.match.average_mmr|default_if_none:"-" }}</td>
                 <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
                 </td>
                 <td>{{ player.match.match_date }}</td>
