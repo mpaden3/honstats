@@ -30,6 +30,8 @@ DEBUG = os.environ.get("DEBUG") == "TRUE"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+USE_GA = os.environ.get("USE_GA") == "TRUE"
+
 # AWS
 if DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
@@ -93,6 +95,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "honstats.context_processors.use_ga",
             ],
         },
     },

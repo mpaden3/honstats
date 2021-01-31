@@ -2,6 +2,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% if use_ga %}
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3CX26WQZMP"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+
+            gtag('config', 'G-3CX26WQZMP');
+        </script>
+    {% endif %}
     <link rel="icon"
           type="image/icon"
           href="{% static 'favicon.ico' %}">
