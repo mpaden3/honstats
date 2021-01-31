@@ -14,6 +14,7 @@ ITEM_ASSEMBLE = "ITEM_ASSEMBLE"
 ITEM_SELL = "ITEM_SELL"
 GOLD_EARNED = "GOLD_EARNED"
 GOLD_LOST = "GOLD_LOST"
+PLAYER_BUYBACK = "PLAYER_BUYBACK"
 EXP_EARNED = "EXP_EARNED"
 GAME_END = "GAME_END"
 GAME_CONCEDE = "GAME_CONCEDE"
@@ -31,6 +32,8 @@ def parse_log_entry(line: str):
         return PlayerTeamChangeAction(line)
     if args[0] == ITEM_PURCHASE:
         return ItemPurchaseAction(line)
+    if args[0] == ITEM_ASSEMBLE:
+        return ItemAssembleAction(line)
     if args[0] == ITEM_SELL:
         return ItemSellAction(line)
     if args[0] == GOLD_EARNED:
@@ -41,6 +44,8 @@ def parse_log_entry(line: str):
         return ExpEarnedAction(line)
     if args[0] == GOLD_LOST:
         return GoldLostAction(line)
+    if args[0] == PLAYER_BUYBACK:
+        return PlayerBuybackAction(line)
     if args[0] == GAME_END or args[0] == GAME_CONCEDE:
         return GameEndAction(line)
     else:
@@ -161,6 +166,9 @@ class PlayerData:
     def lose_gold(self, time, value):
         self.gold_changes.append(GoldChange(time, -value))
 
+    def add_item(self, time, item_code):
+        self.items.append(ItemData(time, item_code, 0, is_consumable(item_code)))
+
 
 class MatchData:
     def __init__(self):
@@ -187,6 +195,13 @@ class MatchData:
         for player in match.player_set.all():
             for _, player_data in self.player_datas.items():
                 if player_data.account_id == player.account_id:
+
+                    item_times = []
+
+                    for item_data in player_data.items:
+                        item_times.append({'item_time': item_data.time, 'item_code': item_data.code})
+
+                    player.item_times = json.dumps(item_times)
 
                     networth_time = {}
                     for i in range(0, self.end_time, interval):
@@ -262,6 +277,9 @@ class MatchData:
     def exp_earned(self, action):
         self.player_datas[action.player_num].earn_exp(action.time, action.experience)
 
+    def add_item_assemble(self, action):
+        self.player_datas[action.player_num].add_item(action.time, action.item_code)
+
 
 class PlayerConnectAction(LogAction):
 
@@ -310,6 +328,7 @@ class ItemPurchaseAction(LogAction):
         match_data.buy_item(self)
 
 
+# ITEM_ASSEMBLE time:0 x:1953 y:8988 z:128 player:5 team:1 item:"Item_PowerSupply"
 class ItemAssembleAction(LogAction):
 
     def __init__(self, line: str):
@@ -318,7 +337,7 @@ class ItemAssembleAction(LogAction):
         self.item_code = str(parse_arg_val(line, "item"))
 
     def apply(self, match_data: MatchData):
-        pass
+        match_data.add_item_assemble(self)
 
 
 # ITEM_SELL time:705300 x:1902 y:12566 z:128 player:6 team:2 item:"Item_Lifetube" value:850
@@ -367,6 +386,18 @@ class GoldLostAction(LogAction):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
         self.value = int(parse_arg_val(line, "gold"))
+
+    def apply(self, match_data: MatchData):
+        match_data.gold_lost(self)
+
+
+# PLAYER_BUYBACK time:1598100 player:9 cost:896 team:1
+class PlayerBuybackAction(LogAction):
+
+    def __init__(self, line: str):
+        self.time = int(parse_arg_val(line, "time"))
+        self.player_num = int(parse_arg_val(line, "player"))
+        self.value = int(parse_arg_val(line, "cost"))
 
     def apply(self, match_data: MatchData):
         match_data.gold_lost(self)

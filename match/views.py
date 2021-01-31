@@ -28,7 +28,7 @@ class MatchDetailView(DetailView):
             try:
                 obj = parse_match_data(obj.match_id)
             except Exception:
-                obj.parsed_level = Match.REPLAY
+                obj.parsed_level = Match.NOT_FOUND
                 obj.save()
 
         return obj

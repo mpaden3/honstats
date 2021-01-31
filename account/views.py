@@ -5,6 +5,7 @@ from django.utils import timezone
 from account.forms import SearchForm
 from account.models import Account
 from account.tasks import fetch_player_data
+from match.models import Match
 
 
 class HomepageView(FormView):
@@ -27,6 +28,11 @@ class HomepageView(FormView):
 
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["matches"] = Match.objects.exclude(parsed_level=Match.KNOWN).order_by("-match_date")[:30]
+        return context
+
 
 class AccountDetailView(DetailView):
     model = Account
@@ -35,8 +41,8 @@ class AccountDetailView(DetailView):
         account = super(AccountDetailView, self).get_object()
 
         if (
-            account.fetched_date is None
-            or account.fetched_date + timezone.timedelta(seconds=900) < timezone.now()
+                account.fetched_date is None
+                or account.fetched_date + timezone.timedelta(seconds=900) < timezone.now()
         ):
             account = fetch_player_data(account.nickname)
         return account
@@ -44,8 +50,8 @@ class AccountDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["matches"] = self.object.matches.all().order_by("-match__match_date")[
-            :30
-        ]
+                             :30
+                             ]
 
         return context
 

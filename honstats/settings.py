@@ -28,6 +28,22 @@ SECRET_KEY = "+sct67ugwpf^eiw0x_l85l*ak)j2(d6j-4+5f$m($nm#-hsz!8"
 DEBUG = os.environ.get("DEBUG") == "TRUE"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# AWS
+if DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+
+AWS_STORAGE_BUCKET_NAME = 'honstats-static'
+
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_LOCATION = 'static'
+AWS_S3_REGION_NAME = 'eu-west-1'
+AWS_S3_CUSTOM_DOMAIN = 'honstats-static.s3.amazonaws.com'
+AWS_DEFAULT_ACL = 'public-read'
 
 # Domain
 CLIENT_REQUESTER_URL = (
@@ -49,6 +65,7 @@ INSTALLED_APPS = [
     "match",
     "game_data",
     "hon_api",
+    "log_parser",
 ]
 
 MIDDLEWARE = [

@@ -32,3 +32,20 @@ def player_color(position):
         return "#106246"
     if position == "9":
         return "#ad5c33"
+
+
+@register.filter
+def msec_print(s):
+    ms = s % 1000
+    s = (s - ms) / 1000
+    secs = s % 60
+    s = (s - secs) / 60
+    mins = s % 60
+    hrs = (s - mins) / 60
+
+    if hrs > 0:
+        return pad(hrs) + ':' + pad(mins) + ':' + pad(secs)
+    return pad(mins) + ':' + pad(secs)
+
+def pad(n):
+    return ('00' + str(round(n)))[-2:]

@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon"
-      type="image/icon"
-      href="{% static 'favicon.ico' %}">
+    <link rel="icon"
+          type="image/icon"
+          href="{% static 'favicon.ico' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-    <title>{% block title %}HonStats{% endblock %}</title>
+    <title>{% block title %}Honstats{% endblock %}</title>
 </head>
 
 <body>
@@ -19,30 +19,29 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link" href="{% url 'match-list' %}">Matches</a>
             <a class="nav-item nav-link" href="{% url 'account-list' %}">Players</a>
             <a class="nav-item nav-link disabled" href="{% url 'about' %}">Items</a>
             <a class="nav-item nav-link disabled" href="{% url 'about' %}">Heroes</a>
+            <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
-            <a class="nav-item nav-link disabled" href="{% url 'qna' %}">Q&A</a>
         </div>
-                                {% block search_form %}
-        <span></span>
-    {% endblock %}
+        {% block search_form %}
+            <form class="form-inline my-2 my-lg-0" action="{% url 'homepage' %}" method="post">
+                {% csrf_token %}
+                <input class="form-control mr-sm-2 main-search" type="search" name="search_term"
+                       placeholder="Search player or match ID" aria-label="Search">
+                <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        {% endblock %}
     </div>
     {% if user.is_authenticated %}
-    <div class="my-2 my-lg-0 navbar-nav">
-        <a class="nav-item nav-link" href="/admin">Admin</a>
-    </div>
+        <div class="my-2 my-lg-0 navbar-nav">
+            <a class="nav-item nav-link" href="/admin">Admin</a>
+        </div>
     {% endif %}
 </nav>
 <div id="content" class="container" style="min-height: 500px; max-width: 1440px">
     {% block content %}{% endblock %}
 </div>
-<footer class="bg-light text-center text-lg-start">
-  <div class="text-center p-3" style="background-color:#343a40">
-    © 2021 Honstats
-  </div>
-</footer>
 </body>
 </html>

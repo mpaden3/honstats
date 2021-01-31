@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
@@ -14,10 +15,12 @@ class Match(TimeStampedModel):
     KNOWN = "1"
     FETCHED = "2"
     REPLAY = "3"
+    NOT_FOUND = "4"
     PARSED_LEVELS = [
         (KNOWN, "Known"),
         (FETCHED, "Fetched"),
         (REPLAY, "Replay parsed"),
+        (NOT_FOUND, "Not found"),
     ]
     WINNING_TEAM = [
         (TEAM_EMPTY, "Empty"),
@@ -104,6 +107,11 @@ class Player(TimeStampedModel):
     # parsed fields
 
     networth_time = models.JSONField(null=True)
+    item_times = models.JSONField(null=True)
+
+    def get_item_times(self):
+        return json.loads(self.item_times)
+
 
     def is_winner(self):
         return self.match.winning_team == self.team

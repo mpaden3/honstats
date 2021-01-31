@@ -70,6 +70,7 @@ body {
     height: 35px;
     margin: 5px 5px 5px 0;
     border: 1px solid rgba(0, 0, 0, .2);
+    box-shadow: 1px 1px 1px 1px #222;
 }
 
 .graph-div {
@@ -78,6 +79,23 @@ body {
     margin-bottom: 20px;
     box-shadow: 3px 3px 3px 2px #222;
 }
-.match-container{
+
+.match-container {
     box-shadow: 3px 3px 3px 2px #222;
+}
+
+.icon-container {
+    position: relative;
+    text-align: center;
+    color: white;
+}
+
+.item_time {
+    background-color: rgba(0, 0, 0, .6);
+    font-size: x-small;
+    font-weight: bolder;
+    position: absolute;
+    bottom: -15px;
+    right: 0px;
+    padding: 0px 1px;
 }
