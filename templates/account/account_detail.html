@@ -34,6 +34,7 @@
             <th scope="col">Hero</th>
             <th scope="col">Stats</th>
             <th scope="col">Result</th>
+            <th scope="col">Duration</th>
             <th scope="col">Avg MMR</th>
             <th scope="col">Match ID</th>
             <th scope="col">Date</th>
@@ -59,6 +60,7 @@
                         <span class="hellbourne">({{ player.mmr_diff }})</span>
                     {% endif %}
                 </td>
+                <td>{{ player.match.duration_format|default_if_none:"-" }}</td>
                 <td>{{ player.match.average_mmr|default_if_none:"-" }}</td>
                 <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
                 </td>
