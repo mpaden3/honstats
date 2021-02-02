@@ -1,21 +1,25 @@
-from account.factory import get_or_create_account_from_stats
-from match.factory import get_or_create_player_basic
-from match.models import Match
-from match.utils import update_match_basic
+import re
+
+from account.models import Account
 
 
-def update_or_create_account_from_stats(data, match_data, create_matches=True):
-    account = get_or_create_account_from_stats(data)
+def parse_nickname_tag(name: str):
+    nickname = name
+    tag_name = None
 
-    if create_matches:
-        for num, match_dat in match_data.items():
+    tag = re.search("^\[.*?\]", name)
+    if tag:
+        nickname = name.replace(tag.group(), '')
+        tag_name = tag.group().replace('[', '').replace(']', '')
+    return nickname, tag_name
 
-            if isinstance(match_dat, dict) and match_dat["map"] == "caldavar":
-                match, created = Match.objects.get_or_create(
-                    match_id=int(match_dat["match_id"])
-                )
-                if created or match.parsed_level == Match.KNOWN:
-                    update_match_basic(match, match_dat)
-                    get_or_create_player_basic(match, account, match_dat)
 
-    return account
+def fix_tags():
+    accounts = Account.objects.all()
+
+    for account in accounts:
+        nickname, tag = parse_nickname_tag(account.nickname)
+        account.nickname = nickname
+        if tag != '':
+            account.clan_tag = tag
+        account.save()

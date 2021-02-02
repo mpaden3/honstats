@@ -37,7 +37,7 @@ def get_or_create_player_full(
     player.networth = int(data["gold"])
     player.hero_damage = int(data["herodmg"])
     player.tower_damage = int(data["bdmg"])
-    player.lasthits = int(data["teamcreepkills"])
+    player.lasthits = int(data["teamcreepkills"]) + int(data["neutralcreepkills"])
     player.denies = int(data["denies"])
     player.wards = int(data["wards"])
     player.mmr_before = float(data["campaign_info"]["mmr_before"])

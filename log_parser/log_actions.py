@@ -89,7 +89,6 @@ def is_consumable(item_code):
     consumables = [
         "Item_HomecomingStone",
         "Item_RunesOfTheBlight",
-        "Item_Bottle",
         "Item_VeiledRot",
         "Item_FlamingEye",
         "Item_ManaEye",
@@ -127,7 +126,7 @@ class PlayerData:
         gold = self.get_gold_at_time(time=time)
         for item in self.items:
             if item.time > time:
-                break
+                continue
 
             if not item.consumable:
                 gold += item.value

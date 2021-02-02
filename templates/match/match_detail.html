@@ -13,7 +13,7 @@
                     <td><h1 class="hellbourne">{{ object.match_name }}</h1></td>
                 </tr>
                 <tr>
-                    <td><h5>{{ object.match_date }}</h5></td>
+                    <td><h5 class="utc-date">{{ object.match_date|date:'Y-m-d H:i' }}</h5></td>
                 </tr>
                 <tr>
                     <td>Duration: <span class="span-networth">{{ object.duration_format }}</span></td>
@@ -22,7 +22,8 @@
                     <td>Average MMR: <span class="span-networth">{{ object.average_mmr }}</span></td>
                 </tr>
                 <tr>
-                    <td>Parsed: <span class="span-networth">{{ object.is_parsed|humanize_bool }}</span></td>
+                    <td>Analysis depth: <span class="span-networth">{{ object.parsed_level|match_state_verbose }}</span>
+                    </td>
                 </tr>
             </table>
         </div>
@@ -32,9 +33,9 @@
                 <th style="width: 300px" scope="col">HERO</th>
                 <th scope="col">Player Name</th>
                 <th style="width: 110px" scope="col">K / D / A</th>
-                <th scope="col">Level</th>
-                <th style="width: 100px" scope="col">LH / DN</th>
-                <th scope="col">Networth</th>
+                <th style="width: 40px" scope="col">Level</th>
+                <th style="width: 90px" scope="col">LH / DN</th>
+                <th scope="col">Net Worth</th>
                 <th style="width: 50px" scope="col">Hero Damage</th>
                 <th style="width: 50px" scope="col">Tower Damage</th>
                 <th style="width: 30px" scope="col">Wards</th>
@@ -59,10 +60,13 @@
                                  title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
                             <span> {{ player.hero.name }}</span></td>
                         <td>
-                            <a class="account-link"
-                               href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
+
+                            {% if player.account.clan_tag %}
+                                <span class="hellbourne">[{{ player.account.clan_tag }}]</span>{% endif %}&nbsp;<a
+                                class="account-link"
+                                href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
                             {% if player.disconnect %}
-                                <span class="hellbourne"> DC</span>
+                                <span class="hellbourne">DC</span>
                             {% endif %}
                         </td>
                         <td><span class="span-kills">{{ player.hero_kills }}</span> /
@@ -107,8 +111,11 @@
                             <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
                                  title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
                             <span> {{ player.hero.name }}</span></td>
-                        <td><a class="account-link"
-                               href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
+                        <td>
+                            {% if player.account.clan_tag %}
+                                <span class="hellbourne">[{{ player.account.clan_tag }}]</span>{% endif %}&nbsp;<a
+                                class="account-link"
+                                href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
                             {% if player.disconnect %}
                                 <span class="hellbourne"> DC</span>
                             {% endif %}
@@ -147,11 +154,11 @@
         <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
         <div class="graph-div" id="networth-xp-graph">
             <div class="legion">
-                Legion
+                Legion Advantage
             </div>
             <canvas id="net-xp-chart"></canvas>
             <div class="hellbourne">
-                Hellbourne
+                Hellbourne Advantage
             </div>
             {{ match.networth_diff|json_script:"networth" }}
             {{ match.exp_diff|json_script:"experience" }}
@@ -192,7 +199,8 @@
                             data: Object.values(networth),
                             label: "Team Networth Difference",
                             borderColor: "darkgoldenrod",
-                            fill: false,
+                            fill: true,
+                            backgroundColor: "rgba(184,	134	,11, 0.4)",
                             lineTension: 0,
                         },
                             {
@@ -205,6 +213,12 @@
                         ]
                     },
                     options: {
+                        title: {
+                            display: true,
+                            text: 'Net Worth and Experience difference over time',
+                            fontSize: 20,
+                            fontColor: '#FFF'
+                        },
                         scales: {
                             xAxes: [{
                                 ticks: {
@@ -212,20 +226,35 @@
                                     maxTicksLimit: 20,
                                     maxRotation: 0,
                                     minRotation: 0,
+                                    fontColor: '#FFF'
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Time'
+                                    labelString: 'Time',
+                                    fontColor: '#FFF',
+                                    fontSize: 18
                                 }
                             }],
                             yAxes: [{
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Value'
+                                    labelString: 'Value',
+                                    fontColor: '#FFF',
+                                    fontSize: 18
                                 },
                                 gridLines: {
                                     zeroLineWidth: 0.5,
                                     zeroLineColor: "#FFF"
+                                },
+                                ticks: {
+                                    fontColor: '#FFF',
+                                    // Include a dollar sign in the ticks
+                                    callback: function (value, index, values) {
+                                        if (value > 0) {
+                                            return value;
+                                        }
+                                        return -value;
+                                    }
                                 }
                             }
                             ]
@@ -235,9 +264,36 @@
                                 radius: 0
                             }
                         },
+                        legend: {
+                            labels: {
+                                fontColor: '#FFF'
+                            }
+                        },
                         tooltips: {
+                            backgroundColor: "rgba(20, 20, 20, 0.8)",
+                            multiKeyBackground: "grey",
+                            titleMarginBottom: 12,
+                            titleAlign: "center",
+                            titleFontSize: 20,
+                            bodySpacing: 10,
+                            xPadding: 15,
+                            yPadding: 15,
+                            cornerRadius: 3,
+                            bodyFontSize: 15,
                             mode: 'index',
-                            intersect: false
+                            intersect: false,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += Math.abs(tooltipItem.yLabel);
+                                    return label;
+                                }
+                            },
+                            itemSort: (a, b) => b.yLabel - a.yLabel
                         },
                         hover: {
                             mode: 'index',
@@ -334,6 +390,17 @@
                         datasets: datasets
                     },
                     options: {
+                        title: {
+                            display: true,
+                            text: 'Player Net Worth over time',
+                            fontSize: 20,
+                            fontColor: '#FFF'
+                        },
+                        legend: {
+                            labels: {
+                                fontColor: '#FFF'
+                            }
+                        },
                         scales: {
                             xAxes: [{
                                 ticks: {
@@ -341,20 +408,28 @@
                                     maxTicksLimit: 20,
                                     maxRotation: 0,
                                     minRotation: 0,
+                                    fontColor: '#FFF'
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Time'
+                                    labelString: 'Time',
+                                    fontColor: '#FFF',
+                                    fontSize: 18
                                 }
                             }],
                             yAxes: [{
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Networth'
+                                    labelString: 'Networth',
+                                    fontColor: '#FFF',
+                                    fontSize: 18
                                 },
                                 gridLines: {
                                     zeroLineWidth: 0.5,
                                     zeroLineColor: "#FFF"
+                                },
+                                ticks: {
+                                    fontColor: '#FFF'
                                 }
                             }
                             ]

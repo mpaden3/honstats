@@ -1,13 +1,20 @@
 from django import template
 
+from match.models import Match
+
 register = template.Library()
 
 
 @register.filter
-def humanize_bool(bool_val: bool):
-    if bool_val:
-        return "Yes"
-    return "No"
+def match_state_verbose(parsed_level):
+    if parsed_level == Match.KNOWN:
+        return "Match Found"
+    if parsed_level == Match.FETCHED:
+        return "Basic Data"
+    if parsed_level == Match.REPLAY:
+        return "Replay Parsed"
+    if parsed_level ==Match.NOT_FOUND:
+        return "Replay could not be found."
 
 
 @register.filter

@@ -9,7 +9,7 @@
         <a class="nav-item nav-link disabled" href="#">Heroes</a>
     </nav>
     <div class="match-info card card-body bg-dark text-light">
-        <h1 class="hellbourne">{{ object.nickname }}</h1>
+        <h1 class="hellbourne">{{ object.get_player_name }}</h1>
         <table>
             <tr>
                 <td>Account ID: <span class="span-networth">{{ object.account_id }}</span></td>
@@ -24,7 +24,7 @@
                 <td>Last Activity: <span class="span-networth">{{ object.last_activity|date:'F d, Y' }}</span></td>
             </tr>
             <tr>
-                <td>Updated: <span class="span-networth">{{ object.fetched_date }}</span></td>
+                <td>Updated: <span class="span-networth utc-date">{{ object.fetched_date|date:'Y-m-d H:i' }}</span></td>
             </tr>
         </table>
     </div>
@@ -62,7 +62,7 @@
                 <td>{{ player.match.average_mmr|default_if_none:"-" }}</td>
                 <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
                 </td>
-                <td>{{ player.match.match_date }}</td>
+                <td class="utc-date">{{ player.match.match_date|date:'Y-m-d H:i' }} </td>
             </tr>
         {% endfor %}
         </tbody>
