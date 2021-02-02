@@ -42,9 +42,8 @@ AWS_STORAGE_BUCKET_NAME = 'honstats-static'
 
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_LOCATION = 'static'
 AWS_S3_REGION_NAME = 'eu-west-1'
-AWS_S3_CUSTOM_DOMAIN = 'honstats-static.s3.amazonaws.com'
+AWS_S3_CUSTOM_DOMAIN = 'd181ebg0dbtsax.cloudfront.net'
 AWS_DEFAULT_ACL = 'public-read'
 
 # Domain
