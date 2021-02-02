@@ -20,7 +20,10 @@
     <link rel="icon"
           type="image/icon"
           href="{% static 'favicon.ico' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <script
+            src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <title>{% block title %}Honstats{% endblock %}</title>
 </head>
@@ -34,12 +37,14 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link" href="{% url 'account-list' %}">Players</a>
-            <a class="nav-item nav-link disabled" href="{% url 'about' %}">Items</a>
-            <a class="nav-item nav-link disabled" href="{% url 'about' %}">Heroes</a>
-            <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>
-            <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
+
+                <a class="nav-item nav-link" href="{% url 'account-list' %}">Players</a>
+                <a class="nav-item nav-link disabled" href="{% url 'about' %}">Items</a>
+                <a class="nav-item nav-link disabled" href="{% url 'about' %}">Heroes</a>
+                <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>
+                <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
         </div>
+    </div>
         {% block search_form %}
             <form class="form-inline my-2 my-lg-0" action="{% url 'homepage' %}" method="post">
                 {% csrf_token %}
@@ -48,10 +53,9 @@
                 <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
             </form>
         {% endblock %}
-    </div>
     {% if user.is_authenticated %}
         <div class="my-2 my-lg-0 navbar-nav">
-            <a class="nav-item nav-link" href="/admin">Admin</a>
+            <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
         </div>
     {% endif %}
 </nav>
