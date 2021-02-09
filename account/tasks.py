@@ -1,5 +1,7 @@
+import random
+import time
+
 from account.models import Account
-from account.utils import parse_nickname_tag
 from hon_api.tasks import show_stats, match_history_overview
 from match.factory import get_or_create_player_basic
 from match.models import Match
@@ -30,12 +32,11 @@ def fetch_player_data(nickname):
     return account
 
 
-def fix_tags():
+def fix_mmr():
     accounts = Account.objects.all()
 
     for account in accounts:
-        nickname, tag = parse_nickname_tag(account.nickname)
-        account.nickname = nickname
-        if tag != '':
-            account.clan_tag = tag
-        account.save()
+        if account.current_mmr is None:
+            fetch_player_data(account.nickname)
+            r = random.randint(1, 5)
+            time.sleep(r)
