@@ -2,6 +2,9 @@
 {% load match_extras %}
 {% load static %}
 {% block title %}{{ object.nickname }} - Overview - Honstats {% endblock %}
+{% block meta-custom %}
+    <meta name="robots" content="noindex">
+{% endblock %}
 {% block content %}
     <nav class="nav">
         <a class="nav-item nav-link account-link" href="#">Overview</a>
