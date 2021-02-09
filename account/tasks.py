@@ -38,5 +38,6 @@ def fix_mmr():
     for account in accounts:
         if account.current_mmr is None:
             fetch_player_data(account.nickname)
-            r = random.randint(1, 5)
+            print(f'Fetched {account.nickname}')
+            r = random.randint(1, 10)
             time.sleep(r)
