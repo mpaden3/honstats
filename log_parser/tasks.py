@@ -15,10 +15,10 @@ def parse_match_data(match_id: int):
     if not match.is_fetched():
         return match
     url = match.replay_log_url
-    r = requests.get(url, allow_redirects=True)
+    zip_file = requests.get(url, allow_redirects=True)
 
     lines = []
-    with zipfile.ZipFile(BytesIO(r.content), 'r') as zfile:
+    with zipfile.ZipFile(BytesIO(zip_file.content), 'r') as zfile:
         for name in zfile.namelist():
             with zfile.open(name) as readfile:
                 for line in io.TextIOWrapper(readfile, 'utf-16'):

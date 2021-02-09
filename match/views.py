@@ -41,14 +41,4 @@ class MatchDetailView(DetailView):
 class MatchListView(ListView):
     model = Match
     paginate_by = 50
-
-    def get_queryset(self):
-        queryset = Match.objects.exclude(parsed_level=Match.KNOWN)
-
-        account_id = self.request.GET.get("account_id")
-        if isinstance(account_id, int):
-            queryset = queryset.filter(
-                player__account_id=self.request.GET.get("account_id")
-            )
-
-        return queryset
+    queryset = Match.objects.exclude(parsed_level=Match.KNOWN)

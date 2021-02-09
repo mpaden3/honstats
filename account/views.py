@@ -49,13 +49,12 @@ class AccountDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["matches"] = self.object.matches.all().order_by("-match__match_date")[
-                             :30
-                             ]
+        context["matches"] = self.object.matches.all().order_by("-match__match_date")[:30]
 
         return context
 
 
 class AccountListView(ListView):
     model = Account
-    paginate_by = 50
+    paginate_by = 100
+    queryset = Account.objects.exclude(current_mmr__isnull=True).order_by('-current_mmr').all()

@@ -2,6 +2,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="description" content="Page for viewing Heroes of Newerth match data and statistics.">
+    {% block viewport %}
+    <meta name="viewport" content="width=device-width, initial-scale=0.96, maximum-scale=5.0, minimum-scale=0.96">
+    {% endblock %}
+    {% block meta-keywords %}
+    <meta name="keywords" content="hon stats, statistics, heroes of newerth, matches, match data" />
+    {% endblock %}
+    {% block meta-custom %}
+    {% endblock %}
     {% if use_ga %}
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3CX26WQZMP"></script>
@@ -51,7 +60,7 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
 
-            <a class="nav-item nav-link" href="{% url 'account-list' %}">Players</a>
+            <a class="nav-item nav-link" href="{% url 'account-list' %}">Leaderboard</a>
             <a class="nav-item nav-link disabled" href="{% url 'about' %}">Items</a>
             <a class="nav-item nav-link disabled" href="{% url 'about' %}">Heroes</a>
             <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>

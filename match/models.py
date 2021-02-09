@@ -5,9 +5,13 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from account.models import Account
 from game_data.models import Hero, Item
+from match.managers import MatchManager
 
 
 class Match(TimeStampedModel):
+
+    objects = MatchManager()
+
     TEAM_EMPTY = "0"
     TEAM_LEGION = "1"
     TEAM_HELLBOURNE = "2"
@@ -29,7 +33,7 @@ class Match(TimeStampedModel):
     ]
 
     match_id = models.IntegerField(primary_key=True)
-    match_date = models.DateTimeField(null=True)
+    match_date = models.DateTimeField(null=True, db_index=True)
     match_name = models.CharField(max_length=127)
     replay_log_url = models.CharField(max_length=511)
     duration = models.IntegerField(null=True)
@@ -50,6 +54,9 @@ class Match(TimeStampedModel):
             return ""
 
         return str(datetime.timedelta(seconds=self.duration))
+
+    def is_known(self):
+        return self.parsed_level == self.KNOWN
 
     def is_fetched(self):
         return self.parsed_level == self.FETCHED

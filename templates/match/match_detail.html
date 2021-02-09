@@ -5,6 +5,12 @@
 {% block title %}
     Honstats - Match #{{ object.match_id }}
 {% endblock %}
+{% block viewport %}
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=5.0, minimum-scale=0.5">
+{% endblock %}
+{% block meta-custom %}
+    <meta name="robots" content="noindex">
+{% endblock %}
 {% block content %}
     <div class="match-container">
         <div class="match-info card card-body bg-dark text-light">

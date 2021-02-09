@@ -1,23 +1,50 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% block title %}
-    Honstats - Player list
+    Honstats - Leaderboard
 {% endblock %}
 {% block content %}
+    <div class="graph-div">
+        <h1 class="hellbourne">Info</h1>
+        This leaderboard currently only includes fetched players.
+    </div>
     <div class="match-info card card-body bg-dark text-light">
-        <h2>Fetched Players List</h2>
+        <h2 class="hellbourne">Ranked Leaderboard</h2>
     </div>
     <table class="table table-striped table-dark">
         <thead>
         <tr>
+            <th scope="col">#</th>
             <th scope="col">Nickname</th>
+            <th scope="col">MMR</th>
+            <th scope="col">Winrate</th>
+            <th scope="col">Games Played</th>
         </tr>
         </thead>
         <tbody>
-
         {% for account in object_list %}
             <tr>
-                <td><a class="account-link" href="{% url 'account-detail' pk=account.account_id %}">{{ account.nickname }}</a>
+                <td>{{ forloop.counter }}.</td>
+                <td>
+                    {% if player.account.clan_tag %}
+                        <span class="hellbourne">[{{ account.clan_tag }}]</span>
+                    {% endif %}
+                    <a class="account-link"
+                       href="{% url 'account-detail' pk=account.account_id %}">{{ account.nickname }}</a>
+                </td>
+                <td>{{ account.current_mmr }}</td>
+                <td>
+                    {% if account.get_season_winrate > 0.5 %}
+                        <span class="legion">
+                        {{ account.get_season_winrate }}%
+                    </span>
+                    {% else %}
+                        <span class="hellbourne">
+                        {{ account.get_season_winrate|default_if_none:"-" }}%
+                    </span>
+                    {% endif %}
+                </td>
+                <td>{{ account.season_games_played }}</td>
             </tr>
         {% endfor %}
         </tbody>
