@@ -8,7 +8,7 @@
 {% block content %}
     <nav class="nav">
         <a class="nav-item nav-link account-link" href="#">Overview</a>
-        <a class="nav-item nav-link account-link" href="{% url 'match-list' %}?account_id={{ object.account_id }}">Matches</a>
+        <a class="nav-item nav-link account-link disabled" href="#">Matches</a>
         <a class="nav-item nav-link disabled" href="#">Heroes</a>
     </nav>
     <div class="match-info card card-body bg-dark text-light">

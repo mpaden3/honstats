@@ -42,7 +42,7 @@ class AccountDetailView(DetailView):
 
         if (
                 account.fetched_date is None
-                or account.fetched_date + timezone.timedelta(seconds=900) < timezone.now()
+                or account.fetched_date + timezone.timedelta(seconds=7200) < timezone.now()
         ):
             account = fetch_player_data(account.nickname)
         return account
@@ -56,5 +56,5 @@ class AccountDetailView(DetailView):
 
 class AccountListView(ListView):
     model = Account
-    paginate_by = 100
-    queryset = Account.objects.exclude(current_mmr__isnull=True).order_by('-current_mmr').all()
+    queryset = Account.objects.exclude(current_mmr__isnull=True).filter(season_games_played__gt=100).order_by(
+        '-current_mmr').all()[:100]
