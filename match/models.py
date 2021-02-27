@@ -74,9 +74,12 @@ class Match(TimeStampedModel):
             return None
 
         total = 0.0
+        players = 0
         for player in self.player_set.all():
-            total += player.mmr_before
-        return round(total / 10)
+            if player.mmr_before:
+                total += player.mmr_before
+                players += 1
+        return round(total / players)
 
 
 class Player(TimeStampedModel):
@@ -118,7 +121,6 @@ class Player(TimeStampedModel):
 
     def get_item_times(self):
         return json.loads(self.item_times)
-
 
     def is_winner(self):
         return self.match.winning_team == self.team

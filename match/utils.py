@@ -15,7 +15,9 @@ def update_or_create_match_full(match_id, data):
             match_id=match_id,
         )
     match_data = data["match_summ"][match_id]
-    date = datetime.strptime(match_data["date"] + match_data["time"], "%m/%d/%Y%I:%M:%S %p")  # 05:27:06 AM
+    date = datetime.strptime(
+        match_data["date"] + match_data["time"], "%m/%d/%Y%I:%M:%S %p"
+    )  # 05:27:06 AM
     date = pytz.utc.localize(date) + timezone.timedelta(hours=-8)
     match.match_date = date
     match.match_name = match_data["mname"]
@@ -26,7 +28,9 @@ def update_or_create_match_full(match_id, data):
     match.save()
 
     for account_id, player_data in data["match_player_stats"][match_id].items():
-        account = Account.objects.get_or_create_account_with_id(account_id, player_data["nickname"], player_data["tag"])
+        account = Account.objects.get_or_create_account_with_id(
+            account_id, player_data["nickname"], player_data["tag"]
+        )
         if account_id not in data["inventory"][match_id]:
             data["inventory"][match_id][account_id] = {}
         get_or_create_player_full(

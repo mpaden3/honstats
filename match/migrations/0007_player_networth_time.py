@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('match', '0006_match_exp_diff'),
+        ("match", "0006_match_exp_diff"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='player',
-            name='networth_time',
+            model_name="player",
+            name="networth_time",
             field=models.JSONField(null=True),
         ),
     ]

@@ -13,7 +13,7 @@ def match_state_verbose(parsed_level):
         return "Basic Data"
     if parsed_level == Match.REPLAY:
         return "Replay Parsed"
-    if parsed_level ==Match.NOT_FOUND:
+    if parsed_level == Match.NOT_FOUND:
         return "Replay could not be found."
 
 
@@ -51,12 +51,12 @@ def msec_print(s):
     hrs = (s - mins) / 60
 
     if hrs > 0:
-        return pad(hrs) + ':' + pad(mins) + ':' + pad(secs)
-    return pad(mins) + ':' + pad(secs)
+        return pad(hrs) + ":" + pad(mins) + ":" + pad(secs)
+    return pad(mins) + ":" + pad(secs)
 
 
 def pad(n):
-    return ('00' + str(round(n)))[-2:]
+    return ("00" + str(round(n)))[-2:]
 
 
 @register.filter
