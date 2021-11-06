@@ -13,24 +13,13 @@
 {% endblock %}
 
 {% block content %}
-    <div class="graph-div">
-        <h1 class="hellbourne">Update 2021-02-02</h1>
-        Hi everyone! We are happy to receive such a positive feedback! We have released a first set of bugfixes:
-        <br>
-        <br>
-        <ul>
-            <li>The page should now work properly on mobile</li>
-            <li>Last hits now properly include neutrals</li>
-            <li>Dates are now converted to local timezones</li>
-            <li>Opening players with clan tags now work properly</li>
-            <li>Networth graph updated style</li>
-        </ul>
-    </div>
-    <div class="graph-div">
-        <h1 class="hellbourne">Introducing Honstats</h1>
-        Welcome to Honstats! This site is still in very early stages of production, but you can already start viewing
-        match history by searching for your name!
-    </div>
+    {% for blog_post in blog_posts %}
+        <div class="graph-div">
+                <h1 class="hellbourne">{{ blog_post.title }}</h1>
+                <br>
+                <p>{{ blog_post.content|safe }}</p>
+        </div>
+    {% endfor %}
     <div class="match-info card card-body bg-dark text-light">
         <h2 class="hellbourne">Recent HoN matches</h2>
     </div>

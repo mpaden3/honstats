@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from account.views import HomepageView
+from blog.views import HomepageView
 
 urlpatterns = [
     path("", HomepageView.as_view(), name="homepage"),

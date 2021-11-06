@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django_extensions",
     "account",
+    "blog",
     "match",
     "game_data",
     "hon_api",
