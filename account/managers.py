@@ -9,7 +9,6 @@ from account.utils import parse_nickname_tag
 
 
 class AccountManager(models.Manager):
-
     def get_or_create_account_from_stats(self, data):
 
         model = self._get_model()
@@ -51,10 +50,10 @@ class AccountManager(models.Manager):
         except model.DoesNotExist:
             account = model(account_id=account_id)
             account.nickname = nickname
-            if tag != '':
+            if tag != "":
                 account.clan_tag = tag
             account.save()
         return account
 
     def _get_model(self):
-        return apps.get_model(app_label='account', model_name='Account')
+        return apps.get_model(app_label="account", model_name="Account")

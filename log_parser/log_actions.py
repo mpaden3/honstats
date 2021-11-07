@@ -103,7 +103,6 @@ def is_consumable(item_code):
 
 
 class PlayerData:
-
     def __init__(self, account_id, player_num):
         super().__init__()
         self.account_id = account_id
@@ -238,7 +237,9 @@ class TeamData:
 
     def sell_dced_item(self, action):
         for player_data in self.get_active_players():
-            player_data.earn_gold(action.time, action.value / self.num_of_active_players())
+            player_data.earn_gold(
+                action.time, action.value / self.num_of_active_players()
+            )
 
     def num_of_active_players(self):
         return len(self.get_active_players())
@@ -275,31 +276,44 @@ class MatchData:
                         item_times = []
 
                         for item_data in player_data.items:
-                            item_times.append({'item_time': item_data.time, 'item_code': item_data.code})
+                            item_times.append(
+                                {
+                                    "item_time": item_data.time,
+                                    "item_code": item_data.code,
+                                }
+                            )
 
                         player.item_times = json.dumps(item_times)
 
                         networth_time = {}
                         for i in range(0, self.end_time, interval):
                             networth_time[i] = player_data.get_networth_at_time(i)
-                        networth_time[self.end_time] = player_data.get_networth_at_time(self.end_time)
+                        networth_time[self.end_time] = player_data.get_networth_at_time(
+                            self.end_time
+                        )
                         player.networth_time = json.dumps(networth_time)
 
-                        player.networth = player_data.get_networth_at_time(self.end_time)
+                        player.networth = player_data.get_networth_at_time(
+                            self.end_time
+                        )
                         player.save()
 
     def get_gold_diff(self, time=None):
         return self.teams[1].get_team_gold(time) - self.teams[2].get_team_gold(time)
 
     def get_networth_diff(self, time=None):
-        return self.teams[1].get_team_networth(time) - self.teams[2].get_team_networth(time)
+        return self.teams[1].get_team_networth(time) - self.teams[2].get_team_networth(
+            time
+        )
 
     def get_exp_diff(self, time=None):
         return self.teams[1].get_team_exp(time) - self.teams[2].get_team_exp(time)
 
     # modifying functions
     def add_player(self, action):
-        self.player_buffer[action.player_num] = PlayerData(action.account_id, action.player_num)
+        self.player_buffer[action.player_num] = PlayerData(
+            action.account_id, action.player_num
+        )
 
     def update_player(self, action):
         player = self.player_buffer[action.player_num]
@@ -316,22 +330,30 @@ class MatchData:
     def remove_player(self, action):
 
         # distribute gold
-        dc_current_gold = self.find_player(action.player_num).get_gold_at_time(action.time)
+        dc_current_gold = self.find_player(action.player_num).get_gold_at_time(
+            action.time
+        )
         team = self.find_team_by_player(action.player_num)
 
         for player_data in team.get_active_players():
-            player_data.earn_gold(action.time, dc_current_gold / team.num_of_active_players())
+            player_data.earn_gold(
+                action.time, dc_current_gold / team.num_of_active_players()
+            )
         team.player_datas[action.player_num].deactivate(action.time)
 
     def sell_item(self, action):
-        if action.player_num == -1: # -1 means item belongs to the terminated player
+        if action.player_num == -1:  # -1 means item belongs to the terminated player
             self.teams[action.team].sell_dced_item(action)
             return
 
-        self.find_player(action.player_num).sell_item(action.time, action.item_code, action.value)
+        self.find_player(action.player_num).sell_item(
+            action.time, action.item_code, action.value
+        )
 
     def buy_item(self, action):
-        self.find_player(action.player_num).buy_item(action.time, action.item_code, action.value)
+        self.find_player(action.player_num).buy_item(
+            action.time, action.item_code, action.value
+        )
 
     def gold_earned(self, action):
         self.find_player(action.player_num).earn_gold(action.time, action.value)
@@ -360,7 +382,6 @@ class MatchData:
 
 
 class PlayerConnectAction(LogAction):
-
     def __init__(self, line: str):
         super().__init__()
         self.player_num = int(parse_arg_val(line, "player"))
@@ -372,7 +393,6 @@ class PlayerConnectAction(LogAction):
 
 # PLAYER_TERMINATED time:2504350 player:3
 class PlayerTerminateAction(LogAction):
-
     def __init__(self, line: str):
         super().__init__()
         self.time = int(parse_arg_val(line, "time"))
@@ -384,7 +404,6 @@ class PlayerTerminateAction(LogAction):
 
 # PLAYER_TEAM_CHANGE player:1 team:1
 class PlayerTeamChangeAction(LogAction):
-
     def __init__(self, line: str):
         self.player_num = int(parse_arg_val(line, "player"))
         self.team = int(parse_arg_val(line, "team"))
@@ -395,7 +414,6 @@ class PlayerTeamChangeAction(LogAction):
 
 # PLAYER_SELECT player:8 hero:"Hero_DrunkenMaster"
 class PlayerConfirmAction(LogAction):
-
     def __init__(self, line: str):
         self.player_num = int(parse_arg_val(line, "player"))
         self.hero = str(parse_arg_val(line, "hero"))
@@ -406,7 +424,6 @@ class PlayerConfirmAction(LogAction):
 
 # ITEM_PURCHASE time:0 x:1796 y:1275 z:358 player:1 team:1 item:"Item_LoggersHatchet" cost:150
 class ItemPurchaseAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
@@ -419,7 +436,6 @@ class ItemPurchaseAction(LogAction):
 
 # ITEM_ASSEMBLE time:0 x:1953 y:8988 z:128 player:5 team:1 item:"Item_PowerSupply"
 class ItemAssembleAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
@@ -431,7 +447,6 @@ class ItemAssembleAction(LogAction):
 
 # ITEM_SELL time:705300 x:1902 y:12566 z:128 player:6 team:2 item:"Item_Lifetube" value:850
 class ItemSellAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.team = int(parse_arg_val(line, "team"))
@@ -445,7 +460,6 @@ class ItemSellAction(LogAction):
 
 # GOLD_EARNED time:843350 x:2112 y:12495 z:128 player:6 team:2 source:"Creep_LegionMelee" gold:46
 class GoldEarnedAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
@@ -458,7 +472,6 @@ class GoldEarnedAction(LogAction):
 # EXP_EARNED time:32300 x:7512 y:7345 z:-120 player:7 team:1 experience:20.47 source:"Creep_HellbourneMelee"
 # EXP_EARNED time:98950 x:13983 y:1672 z:128 player:5 team:2 experience:25.00 source:"Hero_Fairy" owner:0
 class ExpEarnedAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
@@ -470,7 +483,6 @@ class ExpEarnedAction(LogAction):
 
 # GOLD_LOST time:858450 x:8008 y:6468 z:0 player:7 team:1 source:"Hero_Tarot" owner:5 gold:223
 class GoldLostAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
@@ -482,7 +494,6 @@ class GoldLostAction(LogAction):
 
 # PLAYER_BUYBACK time:1598100 player:9 cost:896 team:1
 class PlayerBuybackAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
@@ -494,7 +505,6 @@ class PlayerBuybackAction(LogAction):
 
 # GOLD_LOST time:858450 x:8008 y:6468 z:0 player:7 team:1 source:"Hero_Tarot" owner:5 gold:223
 class GameEndAction(LogAction):
-
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
 

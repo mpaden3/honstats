@@ -15,20 +15,26 @@ class AccountDetailView(DetailView):
         account = super(AccountDetailView, self).get_object()
 
         if (
-                account.fetched_date is None
-                or account.fetched_date + timezone.timedelta(seconds=7200) < timezone.now()
+            account.fetched_date is None
+            or account.fetched_date + timezone.timedelta(seconds=7200) < timezone.now()
         ):
             account = fetch_player_data(account.nickname)
         return account
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["matches"] = self.object.matches.all().order_by("-match__match_date")[:30]
+        context["matches"] = self.object.matches.all().order_by("-match__match_date")[
+            :30
+        ]
 
         return context
 
 
 class AccountListView(ListView):
     model = Account
-    queryset = Account.objects.exclude(current_mmr__isnull=True).filter(season_games_played__gt=100).order_by(
-        '-current_mmr').all()[:100]
+    queryset = (
+        Account.objects.exclude(current_mmr__isnull=True)
+        .filter(season_games_played__gt=100)
+        .order_by("-current_mmr")
+        .all()[:100]
+    )

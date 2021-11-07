@@ -18,11 +18,11 @@ def parse_match_data(match_id: int):
     zip_file = requests.get(url, allow_redirects=True)
 
     lines = []
-    with zipfile.ZipFile(BytesIO(zip_file.content), 'r') as zfile:
+    with zipfile.ZipFile(BytesIO(zip_file.content), "r") as zfile:
         for name in zfile.namelist():
             with zfile.open(name) as readfile:
-                for line in io.TextIOWrapper(readfile, 'utf-16'):
-                    lines.append(line.replace('\n', ''))
+                for line in io.TextIOWrapper(readfile, "utf-16"):
+                    lines.append(line.replace("\n", ""))
 
     match_data = MatchData()
 
@@ -41,7 +41,9 @@ def parse_match_data(match_id: int):
 
 
 def parse_dummy_match_data():
-    with open(os.path.join(BASE_DIR, "resources/m162495279.log"), encoding="utf-16") as f:
+    with open(
+        os.path.join(BASE_DIR, "resources/m162495279.log"), encoding="utf-16"
+    ) as f:
         lines = f.readlines()
 
     match_data = MatchData()
@@ -54,5 +56,7 @@ def parse_dummy_match_data():
 
     for i in range(0, match_data.end_time, 100000):
         networth_diff[i] = match_data.get_networth_diff(i)
-    networth_diff[match_data.end_time] = match_data.get_networth_diff(match_data.end_time)
+    networth_diff[match_data.end_time] = match_data.get_networth_diff(
+        match_data.end_time
+    )
     print(networth_diff)

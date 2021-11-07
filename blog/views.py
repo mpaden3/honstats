@@ -31,6 +31,8 @@ class HomepageView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["matches"] = Match.objects.exclude(parsed_level=Match.KNOWN).order_by("-match_date")[:30]
+        context["matches"] = Match.objects.exclude(parsed_level=Match.KNOWN).order_by(
+            "-match_date"
+        )[:30]
         context["blog_posts"] = BlogPost.objects.order_by("-created").all()
         return context

@@ -7,13 +7,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('match', '0010_auto_20210209_1841'),
+        ("match", "0010_auto_20210209_1841"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='player',
-            name='match',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='match.match'),
+            model_name="player",
+            name="match",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="match.match"
+            ),
         ),
     ]

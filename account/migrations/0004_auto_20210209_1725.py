@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0003_account_clan_tag'),
+        ("account", "0003_account_clan_tag"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='current_mmr',
+            model_name="account",
+            name="current_mmr",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='nickname',
+            model_name="account",
+            name="nickname",
             field=models.CharField(db_index=True, max_length=256, null=True),
         ),
     ]
