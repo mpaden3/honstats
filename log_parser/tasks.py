@@ -41,7 +41,7 @@ def parse_match_data(match_id: int):
 
 
 def parse_dummy_match_data():
-    with open(os.path.join(BASE_DIR, "resources/m160701828.log"), encoding="utf-16") as f:
+    with open(os.path.join(BASE_DIR, "resources/m162495279.log"), encoding="utf-16") as f:
         lines = f.readlines()
 
     match_data = MatchData()

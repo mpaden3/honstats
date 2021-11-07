@@ -83,7 +83,7 @@ class Match(TimeStampedModel):
 
 
 class Player(TimeStampedModel):
-    match = models.ForeignKey(Match, on_delete=models.DO_NOTHING)
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
     account = models.ForeignKey(
         Account, on_delete=models.DO_NOTHING, related_name="matches"
     )

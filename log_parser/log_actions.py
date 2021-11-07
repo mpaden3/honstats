@@ -9,6 +9,7 @@ PLAYER_CONNECT = "PLAYER_CONNECT"
 PLAYER_DISCONNECT = "PLAYER_DISCONNECT"
 PLAYER_TERMINATED = "PLAYER_TERMINATED"
 PLAYER_TEAM_CHANGE = "PLAYER_TEAM_CHANGE"
+PLAYER_SELECT = "PLAYER_SELECT"
 ITEM_PURCHASE = "ITEM_PURCHASE"
 ITEM_ASSEMBLE = "ITEM_ASSEMBLE"
 ITEM_SELL = "ITEM_SELL"
@@ -30,6 +31,8 @@ def parse_log_entry(line: str):
         return PlayerTerminateAction(line)
     if args[0] == PLAYER_TEAM_CHANGE:
         return PlayerTeamChangeAction(line)
+    if args[0] == PLAYER_SELECT:
+        return PlayerConfirmAction(line)
     if args[0] == ITEM_PURCHASE:
         return ItemPurchaseAction(line)
     if args[0] == ITEM_ASSEMBLE:
@@ -109,13 +112,30 @@ class PlayerData:
         self.gold_changes = []
         self.exp_changes = []
         self.items = []
+        self.active = False
+        self.disconnect_time = None
+        self.hero = None
 
-    # helper functions
+    def confirm(self, hero):
+        self.hero = hero
+        self.active = True
+
+    def deactivate(self, time):
+        self.active = False
+        self.disconnect_time = time
+
+    def is_active(self):
+        return self.active
+
     def get_gold_at_time(self, time=None):
+
+        if self.disconnect_time and time > self.disconnect_time:
+            return 0
+
         if time is None:
             time = sys.maxsize
 
-        total = 600
+        total = 600  # starting gold
         for gold_change in self.gold_changes:
             if gold_change.time > time:
                 break
@@ -123,6 +143,10 @@ class PlayerData:
         return total + get_passive_gold_at_time(time)
 
     def get_networth_at_time(self, time=None):
+
+        if self.disconnect_time and time > self.disconnect_time:
+            return 0
+
         gold = self.get_gold_at_time(time=time)
         for item in self.items:
             if item.time > time:
@@ -169,9 +193,61 @@ class PlayerData:
         self.items.append(ItemData(time, item_code, 0, is_consumable(item_code)))
 
 
+class TeamData:
+    def __init__(self):
+        super().__init__()
+        self.player_datas: Dict[int, PlayerData] = {}
+
+    def add_player(self, player_data):
+        self.player_datas[player_data.player_num] = player_data
+
+    def get_player(self, player_num):
+        for player in self.player_datas.values():
+            if player.player_num == player_num:
+                return player
+        return None
+
+    def get_players(self):
+        return self.player_datas.values()
+
+    def get_active_players(self):
+        active_players = []
+        for player_data in self.player_datas.values():
+            if player_data.is_active():
+                active_players.append(player_data)
+        return active_players
+
+    # helper functions
+    def get_team_gold(self, time=None):
+        total = 0
+        for player_data in self.get_players():
+            total += player_data.get_gold_at_time(time)
+        return total
+
+    def get_team_networth(self, time=None):
+        total = 0
+        for player_data in self.get_players():
+            total += player_data.get_networth_at_time(time)
+        return total
+
+    def get_team_exp(self, time=None):
+        total = 0.0
+        for player_data in self.get_players():
+            total += player_data.get_exp_at_time(time)
+        return total
+
+    def sell_dced_item(self, action):
+        for player_data in self.get_active_players():
+            player_data.earn_gold(action.time, action.value / self.num_of_active_players())
+
+    def num_of_active_players(self):
+        return len(self.get_active_players())
+
+
 class MatchData:
     def __init__(self):
-        self.player_datas: Dict[int, PlayerData] = {}
+        self.player_buffer: Dict[int, PlayerData] = {}
+        self.teams: Dict[int, TeamData] = {1: TeamData(), 2: TeamData()}
         self.end_time = 0
 
     # main function
@@ -192,92 +268,95 @@ class MatchData:
         match.exp_diff = json.dumps(exp_diff)
 
         for player in match.player_set.all():
-            for _, player_data in self.player_datas.items():
-                if player_data.account_id == player.account_id:
+            for team in self.teams.values():
+                for player_data in team.get_players():
+                    if player_data.account_id == player.account_id:
 
-                    item_times = []
+                        item_times = []
 
-                    for item_data in player_data.items:
-                        item_times.append({'item_time': item_data.time, 'item_code': item_data.code})
+                        for item_data in player_data.items:
+                            item_times.append({'item_time': item_data.time, 'item_code': item_data.code})
 
-                    player.item_times = json.dumps(item_times)
+                        player.item_times = json.dumps(item_times)
 
-                    networth_time = {}
-                    for i in range(0, self.end_time, interval):
-                        networth_time[i] = player_data.get_networth_at_time(i)
-                    networth_time[self.end_time] = player_data.get_networth_at_time(self.end_time)
-                    player.networth_time = json.dumps(networth_time)
+                        networth_time = {}
+                        for i in range(0, self.end_time, interval):
+                            networth_time[i] = player_data.get_networth_at_time(i)
+                        networth_time[self.end_time] = player_data.get_networth_at_time(self.end_time)
+                        player.networth_time = json.dumps(networth_time)
 
-                    player.networth = player_data.get_networth_at_time(self.end_time)
-                    player.save()
-
-    # helper functions
-    def get_team_gold(self, team, time=None):
-        total = 0
-        for player_num, player_data in self.player_datas.items():
-            if player_data.team == team:
-                total += player_data.get_gold_at_time(time)
-        return total
-
-    def get_team_networth(self, team, time=None):
-        total = 0
-        for player_num, player_data in self.player_datas.items():
-            if player_data.team == team:
-                total += player_data.get_networth_at_time(time)
-        return total
-
-    def get_team_exp(self, team, time=None):
-        total = 0.0
-        for player_num, player_data in self.player_datas.items():
-            if player_data.team == team:
-                total += player_data.get_exp_at_time(time)
-        return total
+                        player.networth = player_data.get_networth_at_time(self.end_time)
+                        player.save()
 
     def get_gold_diff(self, time=None):
-        return self.get_team_gold(1, time) - self.get_team_gold(2, time)
+        return self.teams[1].get_team_gold(time) - self.teams[2].get_team_gold(time)
 
     def get_networth_diff(self, time=None):
-        return self.get_team_networth(1, time) - self.get_team_networth(2, time)
+        return self.teams[1].get_team_networth(time) - self.teams[2].get_team_networth(time)
 
     def get_exp_diff(self, time=None):
-        return round(self.get_team_exp(1, time) - self.get_team_exp(2, time))
+        return self.teams[1].get_team_exp(time) - self.teams[2].get_team_exp(time)
 
     # modifying functions
     def add_player(self, action):
-        self.player_datas[action.player_num] = PlayerData(action.account_id, action.player_num)
-
-    def remove_player(self, action):
-        self.player_datas[action.player_num].items.clear()
-        self.player_datas[action.player_num].gold_changes.clear()
+        self.player_buffer[action.player_num] = PlayerData(action.account_id, action.player_num)
 
     def update_player(self, action):
-        self.player_datas[action.player_num].team = action.team
+        player = self.player_buffer[action.player_num]
+        player.team = action.team
+        self.teams[action.team].add_player(player)
+
+    def confirm_player(self, action):
+        for team_num, team in self.teams.items():
+            if player := team.get_player(action.player_num):
+                player.confirm(action.hero)
+                break
+
+    # deactivate player and distribute gold to remaining teammates
+    def remove_player(self, action):
+
+        # distribute gold
+        dc_current_gold = self.find_player(action.player_num).get_gold_at_time(action.time)
+        team = self.find_team_by_player(action.player_num)
+
+        for player_data in team.get_active_players():
+            player_data.earn_gold(action.time, dc_current_gold / team.num_of_active_players())
+        team.player_datas[action.player_num].deactivate(action.time)
 
     def sell_item(self, action):
-
-        # sell dced player items, distribute gold to team TODO handle disconnect
-        if action.player_num == -1:
-            for _, player_data in self.player_datas.items():
-                if player_data.team == action.team:
-                    player_data.earn_gold(action.time, action.value / 5)
+        if action.player_num == -1: # -1 means item belongs to the terminated player
+            self.teams[action.team].sell_dced_item(action)
             return
 
-        self.player_datas[action.player_num].sell_item(action.time, action.item_code, action.value)
+        self.find_player(action.player_num).sell_item(action.time, action.item_code, action.value)
 
     def buy_item(self, action):
-        self.player_datas[action.player_num].buy_item(action.time, action.item_code, action.value)
+        self.find_player(action.player_num).buy_item(action.time, action.item_code, action.value)
 
     def gold_earned(self, action):
-        self.player_datas[action.player_num].earn_gold(action.time, action.value)
+        self.find_player(action.player_num).earn_gold(action.time, action.value)
 
     def gold_lost(self, action):
-        self.player_datas[action.player_num].lose_gold(action.time, action.value)
+        self.find_player(action.player_num).lose_gold(action.time, action.value)
 
     def exp_earned(self, action):
-        self.player_datas[action.player_num].earn_exp(action.time, action.experience)
+        self.find_player(action.player_num).earn_exp(action.time, action.experience)
 
     def add_item_assemble(self, action):
-        self.player_datas[action.player_num].add_item(action.time, action.item_code)
+        self.find_player(action.player_num).add_item(action.time, action.item_code)
+
+    def find_player(self, player_num):
+        for team in self.teams.values():
+            if player := team.get_player(player_num):
+                return player
+        return None
+
+    def find_team_by_player(self, player_num):
+        for team in self.teams.values():
+            for num, player_data in team.player_datas.items():
+                if num == player_num:
+                    return team
+        return None
 
 
 class PlayerConnectAction(LogAction):
@@ -312,6 +391,17 @@ class PlayerTeamChangeAction(LogAction):
 
     def apply(self, match_data: MatchData):
         match_data.update_player(self)
+
+
+# PLAYER_SELECT player:8 hero:"Hero_DrunkenMaster"
+class PlayerConfirmAction(LogAction):
+
+    def __init__(self, line: str):
+        self.player_num = int(parse_arg_val(line, "player"))
+        self.hero = str(parse_arg_val(line, "hero"))
+
+    def apply(self, match_data: MatchData):
+        match_data.confirm_player(self)
 
 
 # ITEM_PURCHASE time:0 x:1796 y:1275 z:358 player:1 team:1 item:"Item_LoggersHatchet" cost:150
