@@ -1,6 +1,6 @@
 # Create your views here.
 from django.urls import reverse
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 
 from account.forms import SearchForm
 from account.models import Account
@@ -8,6 +8,8 @@ from account.tasks import fetch_player_data
 from blog.models import BlogPost
 from match.models import Match
 
+class BlogListView(ListView):
+    model = BlogPost
 
 class HomepageView(FormView):
     template_name = "homepage.html"
@@ -34,5 +36,5 @@ class HomepageView(FormView):
         context["matches"] = Match.objects.exclude(parsed_level=Match.KNOWN).order_by(
             "-match_date"
         )[:30]
-        context["blog_posts"] = BlogPost.objects.order_by("-created").all()
+        context["blog_posts"] = BlogPost.objects.order_by("-created").all()[:3]
         return context
