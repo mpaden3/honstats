@@ -3,16 +3,20 @@ import sys
 from abc import ABC, abstractmethod
 from typing import Dict
 
+from game_data.utils import is_ward, is_consumable, REV_WARD, OBS_WARD
 from log_parser.utils import parse_arg_val
 
 PLAYER_CONNECT = "PLAYER_CONNECT"
 PLAYER_DISCONNECT = "PLAYER_DISCONNECT"
+PLAYER_KICKED_AFK = "PLAYER_KICKED_AFK"
 PLAYER_TERMINATED = "PLAYER_TERMINATED"
 PLAYER_TEAM_CHANGE = "PLAYER_TEAM_CHANGE"
 PLAYER_SELECT = "PLAYER_SELECT"
+ITEM_ACTIVATE = "ITEM_ACTIVATE"
 ITEM_PURCHASE = "ITEM_PURCHASE"
 ITEM_ASSEMBLE = "ITEM_ASSEMBLE"
 ITEM_SELL = "ITEM_SELL"
+KILL = "KILL"
 GOLD_EARNED = "GOLD_EARNED"
 GOLD_LOST = "GOLD_LOST"
 PLAYER_BUYBACK = "PLAYER_BUYBACK"
@@ -27,7 +31,7 @@ def parse_log_entry(line: str):
         if args[1].startswith("time"):
             return None
         return PlayerConnectAction(line)
-    if args[0] == PLAYER_TERMINATED:
+    if args[0] == PLAYER_TERMINATED or args[0] == PLAYER_KICKED_AFK:
         return PlayerTerminateAction(line)
     if args[0] == PLAYER_TEAM_CHANGE:
         return PlayerTeamChangeAction(line)
@@ -37,8 +41,12 @@ def parse_log_entry(line: str):
         return ItemPurchaseAction(line)
     if args[0] == ITEM_ASSEMBLE:
         return ItemAssembleAction(line)
+    if args[0] == ITEM_ACTIVATE:
+        return ItemActivateAction(line)
     if args[0] == ITEM_SELL:
         return ItemSellAction(line)
+    if args[0] == KILL:
+        return KillAction(line)
     if args[0] == GOLD_EARNED:
         if len(args) < 7:
             return None
@@ -88,20 +96,6 @@ class ItemData:
         self.time = time
 
 
-def is_consumable(item_code):
-    consumables = [
-        "Item_HomecomingStone",
-        "Item_RunesOfTheBlight",
-        "Item_VeiledRot",
-        "Item_FlamingEye",
-        "Item_ManaEye",
-        "Item_ManaPotion",
-        "Item_HealthPotion",
-        "Item_DustOfRevelation",
-    ]
-    return item_code in consumables
-
-
 class PlayerData:
     def __init__(self, account_id, player_num):
         super().__init__()
@@ -114,6 +108,10 @@ class PlayerData:
         self.active = False
         self.disconnect_time = None
         self.hero = None
+        self.dewards = 0
+        self.obs_wards = 0
+        self.rev_wards = 0
+        self.countered_wards = 0
 
     def confirm(self, hero):
         self.hero = hero
@@ -190,6 +188,18 @@ class PlayerData:
 
     def add_item(self, time, item_code):
         self.items.append(ItemData(time, item_code, 0, is_consumable(item_code)))
+
+    def add_deward(self):
+        self.dewards += 1
+
+    def add_obs_ward(self):
+        self.obs_wards += 1
+
+    def add_rev_ward(self):
+        self.rev_wards += 1
+
+    def add_countered_ward(self):
+        self.countered_wards += 1
 
 
 class TeamData:
@@ -296,6 +306,14 @@ class MatchData:
                         player.networth = player_data.get_networth_at_time(
                             self.end_time
                         )
+                        player.dewards = player_data.dewards
+                        player.obs_wards = player_data.obs_wards
+                        player.rev_wards = player_data.rev_wards
+                        player.uncountered_wards = (
+                            player_data.rev_wards
+                            + player_data.obs_wards
+                            - player_data.countered_wards
+                        )
                         player.save()
 
     def get_gold_diff(self, time=None):
@@ -380,6 +398,22 @@ class MatchData:
                     return team
         return None
 
+    def add_deward(self, action):
+        player_data = self.find_player(action.player_num)
+        player_data.add_deward()
+
+    def activate_item(self, action):
+        if action.item_code == REV_WARD:
+            self.find_player(action.player_num).add_rev_ward()
+            return
+        if action.item_code == OBS_WARD:
+            self.find_player(action.player_num).add_obs_ward()
+            return
+
+    def ward_kill(self, action):
+        owner = self.find_player(action.owner)
+        owner.add_countered_ward()
+
 
 class PlayerConnectAction(LogAction):
     def __init__(self, line: str):
@@ -392,6 +426,7 @@ class PlayerConnectAction(LogAction):
 
 
 # PLAYER_TERMINATED time:2504350 player:3
+# PLAYER_KICKED_AFK time:1785900 player:1
 class PlayerTerminateAction(LogAction):
     def __init__(self, line: str):
         super().__init__()
@@ -445,6 +480,19 @@ class ItemAssembleAction(LogAction):
         match_data.add_item_assemble(self)
 
 
+# ITEM_ACTIVATE time:304300 x:5559 y:7911 z:128 player:8 team:2 item:"Item_FlamingEye"
+class ItemActivateAction(LogAction):
+    def __init__(self, line: str):
+        self.time = int(parse_arg_val(line, "time"))
+        self.player_num = int(parse_arg_val(line, "player"))
+        self.item_code = str(parse_arg_val(line, "item"))
+
+    def apply(self, match_data: MatchData):
+        if self.player_num == -1:
+            return
+        match_data.activate_item(self)
+
+
 # ITEM_SELL time:705300 x:1902 y:12566 z:128 player:6 team:2 item:"Item_Lifetube" value:850
 class ItemSellAction(LogAction):
     def __init__(self, line: str):
@@ -458,15 +506,36 @@ class ItemSellAction(LogAction):
         match_data.sell_item(self)
 
 
+# KILL time:358900 x:5039 y:7559 z:530 player:5 team:1 target:"Gadget_FlamingEye" attacker:"Gadget_Item_ManaEye" owner:8
+class KillAction(LogAction):
+    WARD_KILL_TYPE = "WARD_KILL_TYPE"
+    DEFAULT_KILL_TYPE = "DEFAULT_KILL_TYPE"
+
+    def __init__(self, line: str):
+        self.kill_type = KillAction.DEFAULT_KILL_TYPE
+        self.target = str(parse_arg_val(line, "target"))
+        if is_ward(self.target):
+            self.kill_type = KillAction.WARD_KILL_TYPE
+            self.owner = int(parse_arg_val(line, "owner"))
+
+    def apply(self, match_data: MatchData):
+        if self.kill_type == KillAction.WARD_KILL_TYPE:
+            match_data.ward_kill(self)
+
+
 # GOLD_EARNED time:843350 x:2112 y:12495 z:128 player:6 team:2 source:"Creep_LegionMelee" gold:46
+# GOLD_EARNED time:884750 x:11011 y:4283 z:59 player:8 team:1 source:"Gadget_Item_ManaEye" owner:4 gold:50 WARD
 class GoldEarnedAction(LogAction):
     def __init__(self, line: str):
         self.time = int(parse_arg_val(line, "time"))
         self.player_num = int(parse_arg_val(line, "player"))
         self.value = int(parse_arg_val(line, "gold"))
+        self.source = str(parse_arg_val(line, "source"))
 
     def apply(self, match_data: MatchData):
         match_data.gold_earned(self)
+        if is_ward(self.source):
+            match_data.add_deward(self)
 
 
 # EXP_EARNED time:32300 x:7512 y:7345 z:-120 player:7 team:1 experience:20.47 source:"Creep_HellbourneMelee"

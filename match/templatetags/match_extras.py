@@ -67,3 +67,17 @@ def hero_icon(hero_id):
 @register.filter
 def item_icon(item_code):
     return f"img/item/{item_code}.jpg"
+
+
+@register.filter
+def show_wards(player):
+    if player.obs_wards is not None and player.rev_wards is not None:
+        return f'<span class="span-assists">{player.obs_wards}</span>/<span class="account-link">{player.rev_wards}</span>'
+    return player.wards
+
+
+@register.filter
+def percentage(value):
+    if value is None:
+        return format(0, ".0%")
+    return format(value, ".0%")

@@ -107,6 +107,10 @@ class Player(TimeStampedModel):
     lasthits = models.IntegerField(null=True)
     denies = models.IntegerField(null=True)
     wards = models.IntegerField(null=True)
+    obs_wards = models.IntegerField(null=True)
+    rev_wards = models.IntegerField(null=True)
+    dewards = models.IntegerField(null=True)
+    uncountered_wards = models.IntegerField(null=True)
     mmr_before = models.FloatField(null=True)
     mmr_after = models.FloatField(null=True)
 
@@ -118,6 +122,14 @@ class Player(TimeStampedModel):
 
     networth_time = models.JSONField(null=True)
     item_times = models.JSONField(null=True)
+
+    @property
+    def ward_success_percent(self):
+        if self.obs_wards == 0 and self.rev_wards == 0:
+            return 0
+
+        if self.obs_wards is not None and self.uncountered_wards is not None:
+            return self.uncountered_wards / (self.obs_wards + self.rev_wards)
 
     def get_item_times(self):
         return json.loads(self.item_times)

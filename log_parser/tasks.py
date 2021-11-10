@@ -5,6 +5,8 @@ from io import BytesIO
 import requests
 import zipfile
 
+from django.http import Http404
+
 from honstats.settings import BASE_DIR
 from log_parser.log_actions import MatchData, parse_log_entry
 from match.models import Match
@@ -16,6 +18,8 @@ def parse_match_data(match_id: int):
         return match
     url = match.replay_log_url
     zip_file = requests.get(url, allow_redirects=True)
+    if zip_file.status_code != 200:
+        raise Http404
 
     lines = []
     with zipfile.ZipFile(BytesIO(zip_file.content), "r") as zfile:

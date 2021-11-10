@@ -3,90 +3,126 @@
 {% load static %}
 {% load match_extras %}
 {% block title %}
-    Honstats - Match #{{ object.match_id }}
+Honstats - Match #{{ object.match_id }}
 {% endblock %}
 {% block viewport %}
-    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=5.0, minimum-scale=0.5">
+<meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=5.0, minimum-scale=0.5">
 {% endblock %}
 {% block meta-custom %}
-    <meta name="robots" content="noindex">
+<meta name="robots" content="noindex">
 {% endblock %}
 {% block content %}
-    <div class="match-container">
-        <div class="match-info card card-body bg-dark text-light">
-            <table>
-                <tr>
-                    <td><h1 class="hellbourne">{{ object.match_name }}</h1></td>
-                </tr>
-                <tr>
-                    <td><h5 class="utc-date">{{ object.match_date|date:'Y-m-d H:i' }}</h5></td>
-                </tr>
-                <tr>
-                    <td>Duration: <span class="span-networth">{{ object.duration_format }}</span></td>
-                </tr>
-                <tr>
-                    <td>Average MMR: <span class="span-networth">{{ object.average_mmr }}</span></td>
-                </tr>
-                <tr>
-                    <td>Analysis depth: <span class="span-networth">{{ object.parsed_level|match_state_verbose }}</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
+<div class="match-container">
+    <div class="match-info card card-body bg-dark text-light">
+        <table>
+            <tr>
+                <td><h1 class="hellbourne">{{ object.match_name }}</h1></td>
+            </tr>
+            <tr>
+                <td><h5 class="utc-date">{{ object.match_date|date:'Y-m-d H:i' }}</h5></td>
+            </tr>
+            <tr>
+                <td>Duration: <span class="span-networth">{{ object.duration_format }}</span></td>
+            </tr>
+            <tr>
+                <td>Average MMR: <span class="span-networth">{{ object.average_mmr }}</span></td>
+            </tr>
+            <tr>
+                <td>Analysis depth: <span class="span-networth">{{ object.parsed_level|match_state_verbose }}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <ul class="nav nav-tabs bg-dark text-light">
+        <li class="nav-item">
+            <button class="nav-link btn btn-outline-light " type='button' id='combat-toggle'>Combat Stats</button>
+        </li>
+        <li class="nav-item active">
+            <button class="nav-link btn btn-outline-light" type='button' id='support-toggle'>Support Stats</button>
+        </li>
+    </ul>
+    <script>
+    $(document).ready(function(){
+    var toggle_speed = 0
+        $('.support-info').toggle(toggle_speed);
+        $('#combat-toggle').prop('disabled', true);
+        $('#combat-toggle').on('click', function(event) {
+            $(this).prop('disabled', true);
+            $('#support-toggle').prop('disabled', false);
+            $('.combat-info').toggle(toggle_speed);
+            $('.support-info').toggle(toggle_speed);
+        });
+        $('#support-toggle').on('click', function(event) {
+            $(this).prop('disabled', true);
+            $('#combat-toggle').prop('disabled', false);
+            $('.combat-info').toggle(toggle_speed);
+            $('.support-info').toggle(toggle_speed);
+        });
+    });
+
+
+
+    </script>
+    <div class="tab-content">
         <table class="table table-striped table-dark">
             <thead>
             <tr>
                 <th style="width: 300px" scope="col">HERO</th>
-                <th scope="col">Player Name</th>
-                <th style="width: 110px" scope="col">K / D / A</th>
-                <th style="width: 40px" scope="col">Level</th>
-                <th style="width: 90px" scope="col">LH / DN</th>
-                <th scope="col">Net Worth</th>
-                <th style="width: 50px" scope="col">Hero Damage</th>
-                <th style="width: 50px" scope="col">Tower Damage</th>
-                <th style="width: 30px" scope="col">Wards</th>
-                <th style="width: 350px" scope="col">Items</th>
+                <th style="width: 100px" scope="col">Player Name</th>
+                <th style="width: 100px; min-width: 100px" scope="col">K / D / A</th>
+                <th style="width: 30px" scope="col">Level</th>
+                <th style="min-width: 90px" scope="col">LH / DN</th>
+                <th style="width: 60px" scope="col">Net Worth</th>
+                <th class="combat-info hellbourne" style="width: 60px" scope="col">Hero</th>
+                <th class="combat-info hellbourne" style="width: 60px" scope="col">Tower</th>
+                <th class="support-info legion" style="width: 60px" scope="col">Wards</th>
+                <th class="support-info legion" style="width: 60px" scope="col">Ward Success</th>
+                <th class="support-info legion" style="width: 60px" scope="col">Dewards</th>
+                <th style="width: 550px; min-width: 350px" scope="col">Items</th>
             </tr>
             </thead>
             <tbody>
             <tr>
                 <th class="legion" scope="col">Legion
                     {% if match.winning_team == match.TEAM_LEGION %}
-                        <span class="span-networth font-italic">(winner)</span>
-                    {% endif %}</th>
+                    <span class="span-networth font-italic">(winner)</span>
+                    {% endif %}
+                </th>
             </tr>
             {% for player in players %}
-                {% if player.team == "1" %}
-                    <tr>
-                        <td><span class="player-color-box"
-                                  style="background-color: {{ player.position|player_color }}"></span>
+            {% if player.team == "1" %}
+            <tr>
+                <td><span class="player-color-box"
+                          style="background-color: {{ player.position|player_color }}"></span>
 
 
-                            <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
-                                 title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
-                            <span> {{ player.hero.name }}</span></td>
-                        <td>
+                    <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
+                         title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
+                    <span> {{ player.hero.name }}</span></td>
+                <td>
 
-                            {% if player.account.clan_tag %}
-                                <span class="hellbourne">[{{ player.account.clan_tag }}]</span>{% endif %}&nbsp;<a
-                                class="account-link"
-                                href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
-                            {% if player.disconnect %}
-                                <span class="hellbourne">DC</span>
-                            {% endif %}
-                        </td>
-                        <td><span class="span-kills">{{ player.hero_kills }}</span> /
-                            <span class="span-deaths">{{ player.deaths }}</span> /
-                            <span class="span-assists">{{ player.hero_assists }}</span></td>
-                        <td><span class="span-level">{{ player.level }}</span></td>
-                        <td>{{ player.lasthits }} / {{ player.denies }}</td>
-                        <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
-                        <td><span>{{ player.hero_damage|intcomma }}</span></td>
-                        <td><span>{{ player.tower_damage|intcomma }}</span></td>
-                        <td><span>{{ player.wards }}</span></td>
-                        <td>
-                            {% for item in player.get_items %}
-                                <span class="icon-container">
+                    {% if player.account.clan_tag %}
+                    <span class="hellbourne">[{{ player.account.clan_tag }}]</span>{% endif %}&nbsp;<a
+                        class="account-link"
+                        href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
+                    {% if player.disconnect %}
+                    <span class="hellbourne">DC</span>
+                    {% endif %}
+                </td>
+                <td><span class="span-kills">{{ player.hero_kills }}</span> /
+                    <span class="span-deaths">{{ player.deaths }}</span> /
+                    <span class="span-assists">{{ player.hero_assists }}</span></td>
+                <td><span class="span-level">{{ player.level }}</span></td>
+                <td>{{ player.lasthits }} / {{ player.denies }}</td>
+                <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
+                <td class="combat-info"><span>{{ player.hero_damage|intcomma }}</span></td>
+                <td class="combat-info"><span>{{ player.tower_damage|intcomma }}</span></td>
+                <td class="support-info">{{ player | show_wards | safe }}</td>
+                <td class="support-info"><span>{{ player.ward_success_percent | percentage }}</span></td>
+                <td class="support-info"><span>{{ player.dewards }}</span></td>
+                <td>
+                    {% for item in player.get_items %}
+                    <span class="icon-container">
                                     <img src="{% static item.code|item_icon %}" class="item-icon"
                                          title="{{ item.name }}" alt="{{ item.name }}"/>
                                     {% if match.is_parsed %}
@@ -97,47 +133,50 @@
                                         {% endfor %}
                                     {% endif %}
                                 </span>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endif %}
             {% endfor %}
 
             <tr>
                 <th class="hellbourne" scope="col">Hellbourne
                     {% if match.winning_team == match.TEAM_HELLBOURNE %}
-                        <span class="span-networth font-italic">(winner)</span>
-                    {% endif %}</th>
+                    <span class="span-networth font-italic">(winner)</span>
+                    {% endif %}
+                </th>
             </tr>
             {% for player in players %}
-                {% if player.team == "2" %}
-                    <tr>
-                        <td><span class="player-color-box"
-                                  style="background-color: {{ player.position|player_color }}"></span>
-                            <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
-                                 title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
-                            <span> {{ player.hero.name }}</span></td>
-                        <td>
-                            {% if player.account.clan_tag %}
-                                <span class="hellbourne">[{{ player.account.clan_tag }}]</span>{% endif %}&nbsp;<a
-                                class="account-link"
-                                href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
-                            {% if player.disconnect %}
-                                <span class="hellbourne"> DC</span>
-                            {% endif %}
-                        </td>
-                        <td><span class="span-kills">{{ player.hero_kills }}</span> /
-                            <span class="span-deaths">{{ player.deaths }}</span> /
-                            <span class="span-assists">{{ player.hero_assists }}</span></td>
-                        <td><span class="span-level">{{ player.level }}</span></td>
-                        <td>{{ player.lasthits }} / {{ player.denies }}</td>
-                        <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
-                        <td><span>{{ player.hero_damage|intcomma }}</span></td>
-                        <td><span>{{ player.tower_damage|intcomma }}</span></td>
-                        <td><span>{{ player.wards }}</span></td>
-                        <td>
-                            {% for item in player.get_items %}
-                                <span class="icon-container">
+            {% if player.team == "2" %}
+            <tr>
+                <td><span class="player-color-box"
+                          style="background-color: {{ player.position|player_color }}"></span>
+                    <img src="{% static player.hero_id|hero_icon %}" class="item-icon"
+                         title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/>
+                    <span> {{ player.hero.name }}</span></td>
+                <td>
+                    {% if player.account.clan_tag %}
+                    <span class="hellbourne">[{{ player.account.clan_tag }}]</span>{% endif %}&nbsp;<a
+                        class="account-link"
+                        href="{% url 'account-detail' pk=player.account_id %}">{{ player.account.nickname }}</a>
+                    {% if player.disconnect %}
+                    <span class="hellbourne"> DC</span>
+                    {% endif %}
+                </td>
+                <td><span class="span-kills">{{ player.hero_kills }}</span> /
+                    <span class="span-deaths">{{ player.deaths }}</span> /
+                    <span class="span-assists">{{ player.hero_assists }}</span></td>
+                <td><span class="span-level">{{ player.level }}</span></td>
+                <td>{{ player.lasthits }} / {{ player.denies }}</td>
+                <td><span class="span-networth">{{ player.networth|intcomma }}</span></td>
+                <td class="combat-info"><span>{{ player.hero_damage|intcomma }}</span></td>
+                <td class="combat-info"><span>{{ player.tower_damage|intcomma }}</span></td>
+                <td class="support-info">{{ player | show_wards | safe }}</td>
+                <td class="support-info"><span>{{ player.ward_success_percent | percentage }}</span></td>
+                <td class="support-info"><span>{{ player.dewards }}</span></td>
+                <td>
+                    {% for item in player.get_items %}
+                    <span class="icon-container">
                                     <img src="{% static item.code|item_icon %}" class="item-icon"
                                          title="{{ item.name }}" alt="{{ item.name }}"/>
                                     {% if match.is_parsed %}
@@ -148,27 +187,28 @@
                                         {% endfor %}
                                     {% endif %}
                                 </span>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endif %}
             {% endfor %}
             </tbody>
         </table>
     </div>
-    {% if object.is_parsed %}
-        <script src="{% static 'js/Chart.bundle.min.js' %}"></script>
-        <div class="graph-div" id="networth-xp-graph">
-            <div class="legion">
-                Legion Advantage
-            </div>
-            <canvas id="net-xp-chart"></canvas>
-            <div class="hellbourne">
-                Hellbourne Advantage
-            </div>
-            {{ match.networth_diff|json_script:"networth" }}
-            {{ match.exp_diff|json_script:"experience" }}
-            <script>
+</div>
+{% if object.is_parsed %}
+<script src="{% static 'js/Chart.bundle.min.js' %}"></script>
+<div class="graph-div" id="networth-xp-graph">
+    <div class="legion">
+        Legion Advantage
+    </div>
+    <canvas id="net-xp-chart"></canvas>
+    <div class="hellbourne">
+        Hellbourne Advantage
+    </div>
+    {{ match.networth_diff|json_script:"networth" }}
+    {{ match.exp_diff|json_script:"experience" }}
+    <script>
                 var networth = JSON.parse(document.getElementById('networth').textContent);
                 networth = JSON.parse(networth);
 
@@ -307,16 +347,19 @@
                         }
                     }
                 });
-            </script>
-        </div>
-        <div class="graph-div" id="player-networth-graph">
-            <canvas id="player-net-chart"></canvas>
-            {% for player in players %}
-                {% with player.position|add:"_player_networth" as player_id %}
-                    {{ player.networth_time|json_script:player_id }}
-                {% endwith %}
-            {% endfor %}
-            <script>
+
+
+
+    </script>
+</div>
+<div class="graph-div" id="player-networth-graph">
+    <canvas id="player-net-chart"></canvas>
+    {% for player in players %}
+    {% with player.position|add:"_player_networth" as player_id %}
+    {{ player.networth_time|json_script:player_id }}
+    {% endwith %}
+    {% endfor %}
+    <script>
                 function msToTime(s) {
 
                     // Pad to 2 or 3 digits, default is 2
@@ -473,8 +516,11 @@
                         }
                     }
                 });
-            </script>
 
-        </div>
-    {% endif %}
+
+
+    </script>
+
+</div>
+{% endif %}
 {% endblock %}

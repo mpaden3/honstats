@@ -8,8 +8,10 @@ from account.tasks import fetch_player_data
 from blog.models import BlogPost
 from match.models import Match
 
+
 class BlogListView(ListView):
     model = BlogPost
+
 
 class HomepageView(FormView):
     template_name = "homepage.html"
