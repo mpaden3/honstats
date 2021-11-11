@@ -79,6 +79,8 @@ class Match(TimeStampedModel):
             if player.mmr_before:
                 total += player.mmr_before
                 players += 1
+        if players == 0:
+            return 0
         return round(total / players)
 
 
