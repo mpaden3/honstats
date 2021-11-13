@@ -2,6 +2,7 @@ from django.http import Http404
 from django.views.generic import DetailView, ListView
 
 from log_parser.tasks import parse_match_data
+from match.exceptions import ReplayNotFoundException
 from match.models import Match
 from match.tasks import fetch_match_data
 
@@ -25,7 +26,7 @@ class MatchDetailView(DetailView):
         if not obj.is_parsed():
             try:
                 obj = parse_match_data(obj.match_id)
-            except Exception:
+            except ReplayNotFoundException:
                 obj.parsed_level = Match.NOT_FOUND
                 obj.save()
 

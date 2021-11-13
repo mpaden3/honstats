@@ -9,6 +9,7 @@ from django.http import Http404
 
 from honstats.settings import BASE_DIR
 from log_parser.log_actions import MatchData, parse_log_entry
+from match.exceptions import ReplayNotFoundException
 from match.models import Match
 
 
@@ -19,7 +20,7 @@ def parse_match_data(match_id: int):
     url = match.replay_log_url
     zip_file = requests.get(url, allow_redirects=True)
     if zip_file.status_code != 200:
-        raise Http404
+        raise ReplayNotFoundException
 
     lines = []
     with zipfile.ZipFile(BytesIO(zip_file.content), "r") as zfile:

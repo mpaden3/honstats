@@ -5,6 +5,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from account.models import Account
 from game_data.models import Hero, Item
+from match import constants
 from match.managers import MatchManager
 
 
@@ -20,6 +21,7 @@ class Match(TimeStampedModel):
     FETCHED = "2"
     REPLAY = "3"
     NOT_FOUND = "4"
+
     PARSED_LEVELS = [
         (KNOWN, "Known"),
         (FETCHED, "Fetched"),
@@ -31,10 +33,18 @@ class Match(TimeStampedModel):
         (TEAM_LEGION, "Legion"),
         (TEAM_HELLBOURNE, "Hellbourne"),
     ]
+    GAME_MODES = [
+        (constants.MODE_RANKED, "Ranked"),
+        (constants.MODE_CUSTOM, "Custom"),
+        (constants.MODE_MIDWARS, "Midwars"),
+    ]
 
     match_id = models.IntegerField(primary_key=True)
     match_date = models.DateTimeField(null=True, db_index=True)
     match_name = models.CharField(max_length=127)
+    game_mode = models.TextField(
+        max_length=1, choices=GAME_MODES, default=constants.MODE_RANKED
+    )
     replay_log_url = models.CharField(max_length=511)
     duration = models.IntegerField(null=True)
     winning_team = models.TextField(

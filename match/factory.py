@@ -1,5 +1,6 @@
 from account.models import Account
 from game_data.utils import parse_items, find_hero
+from match.constants import MODE_RANKED
 from match.models import Player, Match
 
 
@@ -40,8 +41,9 @@ def get_or_create_player_full(
     player.lasthits = int(data["teamcreepkills"]) + int(data["neutralcreepkills"])
     player.denies = int(data["denies"])
     player.wards = int(data["wards"])
-    player.mmr_before = float(data["campaign_info"]["mmr_before"])
-    player.mmr_after = float(data["campaign_info"]["mmr_after"])
+    if match.game_mode == MODE_RANKED:
+        player.mmr_before = float(data["campaign_info"]["mmr_before"])
+        player.mmr_after = float(data["campaign_info"]["mmr_after"])
     player.gpm = round(int(data["gold"]) / (time_played / 60.0))
     player.apm = round(int(data["actions"]) / (time_played / 60.0))
 

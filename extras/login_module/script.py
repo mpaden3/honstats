@@ -1,6 +1,5 @@
 import hon.masterserver
-
-
-re = hon.masterserver.srp_auth("honstats_3","82WD8s@*4xjRndu")
+import sys
+re = hon.masterserver.srp_auth(sys.argv[1], sys.argv[2])
 
 print(re['cookie'])

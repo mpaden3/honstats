@@ -3,74 +3,77 @@
 {% load static %}
 {% block title %}{{ object.nickname }} - Overview - Honstats {% endblock %}
 {% block meta-custom %}
-    <meta name="robots" content="noindex">
+<meta name="robots" content="noindex">
 {% endblock %}
 {% block content %}
-    <nav class="nav">
-        <a class="nav-item nav-link account-link" href="#">Overview</a>
-        <a class="nav-item nav-link account-link disabled" href="#">Matches</a>
-        <a class="nav-item nav-link disabled" href="#">Heroes</a>
-    </nav>
-    <div class="match-info card card-body bg-dark text-light">
-        <h1 class="hellbourne">{{ object.get_player_name }}</h1>
-        <table>
-            <tr>
-                <td>MMR: <span class="span-networth">{{ object.current_mmr }}</span></td>
-            </tr>
-            <tr>
-                <td>Season Games Played: <span class="span-networth">{{ object.season_games_played }}</span></td>
-            </tr>
-            <tr>
-                <td>Total Games Played: <span class="span-networth">{{ object.total_games_played }}</span></td>
-            </tr>
-            <tr>
-                <td>Last Activity: <span class="span-networth">{{ object.last_activity|date:'F d, Y' }}</span></td>
-            </tr>
-            <tr>
-                <td>Updated: <span class="span-networth utc-date">{{ object.fetched_date|date:'Y-m-d H:i' }}</span></td>
-            </tr>
-        </table>
-    </div>
-    <table class="table table-striped table-dark">
-        <thead>
+<nav class="nav">
+    <a class="nav-item nav-link account-link" href="#">Overview</a>
+    <a class="nav-item nav-link account-link disabled" href="#">Matches</a>
+    <a class="nav-item nav-link disabled" href="#">Heroes</a>
+</nav>
+<div class="match-info card card-body bg-dark text-light">
+    <h1 class="hellbourne">{{ object.get_player_name }}</h1>
+    <table>
         <tr>
-            <th scope="col">Hero</th>
-            <th scope="col">Stats</th>
-            <th scope="col">Result</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Avg MMR</th>
-            <th scope="col">Match ID</th>
-            <th scope="col">Date</th>
+            <td>MMR: <span class="span-networth">{{ object.current_mmr }}</span></td>
         </tr>
-        </thead>
-        <tbody>
-        {% for player in matches %}
-            <tr>
-                <td><img src="{% static player.hero_id|hero_icon %}" class="item-icon"
-                         title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/> {{ player.hero.name }}</td>
-                <td><span class="span-kills">{{ player.hero_kills }}</span> /
-                    <span class="span-deaths">{{ player.deaths }}</span> /
-                    <span class="span-assists">{{ player.hero_assists }}</span>
-                </td>
-                <td>
-                    {% if player.is_winner %}<span class="legion">Win</span>
-                    {% else %}
-                        <span class="hellbourne">Loss</span>
-                    {% endif %}
-                    {% if player.mmr_diff and player.mmr_diff > 0 %}
-                        <span class="legion">(+{{ player.mmr_diff }})</span>
-                    {% elif player.mmr_diff and player.mmr_diff < 0 %}
-                        <span class="hellbourne">({{ player.mmr_diff }})</span>
-                    {% endif %}
-                </td>
-                <td>{{ player.match.duration_format|default_if_none:"-" }}</td>
-                <td>{{ player.match.average_mmr|default_if_none:"-" }}</td>
-                <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
-                </td>
-                <td class="utc-date">{{ player.match.match_date|date:'Y-m-d H:i' }} </td>
-            </tr>
-        {% endfor %}
-        </tbody>
+        <tr>
+            <td>Season Games Played: <span class="span-networth">{{ object.season_games_played }}</span></td>
+        </tr>
+        <tr>
+            <td>Total Games Played: <span class="span-networth">{{ object.total_games_played }}</span></td>
+        </tr>
+        <tr>
+            <td>Last Activity: <span class="span-networth">{{ object.last_activity|date:'F d, Y' }}</span></td>
+        </tr>
+        <tr>
+            <td>Updated: <span class="span-networth utc-date">{{ object.fetched_date|date:'Y-m-d H:i' }}</span></td>
+        </tr>
     </table>
+</div>
+<table class="table table-striped table-dark">
+    <thead>
+    <tr>
+        <th scope="col">Hero</th>
+        <th scope="col">Stats</th>
+        <th scope="col">Result</th>
+        <th scope="col">Duration</th>
+        <th scope="col">Avg MMR</th>
+        <th scope="col">Game Mode</th>
+        <th scope="col">Match ID</th>
+        <th scope="col">Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for player in matches %}
+    <tr>
+        <td><img src="{% static player.hero_id|hero_icon %}" class="item-icon"
+                 title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/> {{ player.hero.name }}
+        </td>
+        <td><span class="span-kills">{{ player.hero_kills }}</span> /
+            <span class="span-deaths">{{ player.deaths }}</span> /
+            <span class="span-assists">{{ player.hero_assists }}</span>
+        </td>
+        <td>
+            {% if player.is_winner %}<span class="legion">Win</span>
+            {% else %}
+            <span class="hellbourne">Loss</span>
+            {% endif %}
+            {% if player.mmr_diff and player.mmr_diff > 0 %}
+            <span class="legion">(+{{ player.mmr_diff }})</span>
+            {% elif player.mmr_diff and player.mmr_diff < 0 %}
+            <span class="hellbourne">({{ player.mmr_diff }})</span>
+            {% endif %}
+        </td>
+        <td>{{ player.match.duration_format|default_if_none:"-" }}</td>
+        <td>{{ player.match.average_mmr|default_if_none:"-" }}</td>
+        <td>{{ player.match.get_game_mode_display}}</td>
+        <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
+        </td>
+        <td class="utc-date">{{ player.match.match_date|date:'Y-m-d H:i' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

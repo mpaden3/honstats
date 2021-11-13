@@ -30,7 +30,11 @@ Honstats - Match #{{ object.match_id }}
             <tr>
                 <td>Analysis depth: <span class="span-networth">{{ object.parsed_level|match_state_verbose }}</span>
                 </td>
+            </tr>            <tr>
+                <td>Game Mode: <span class="hellbourne">{{ object.get_game_mode_display }}</span>
+                </td>
             </tr>
+
         </table>
     </div>
     <ul class="nav nav-tabs bg-dark text-light">

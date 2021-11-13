@@ -1,0 +1,2 @@
+class ReplayNotFoundException(Exception):
+    pass

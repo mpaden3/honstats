@@ -5,7 +5,16 @@ from django.utils import timezone
 from account.models import Account
 from match.factory import get_or_create_player_full
 from match.models import Match
+from match.constants import MODE_RANKED, MODE_CUSTOM, MODE_MIDWARS
 
+
+def determine_game_mode(game_mode_data):
+    if game_mode_data == 'cp':
+        return MODE_RANKED
+    if game_mode_data == 'cm':
+        return MODE_CUSTOM
+
+    return None
 
 def update_or_create_match_full(match_id, data):
     try:
@@ -21,6 +30,7 @@ def update_or_create_match_full(match_id, data):
     date = pytz.utc.localize(date) + timezone.timedelta(hours=-8)
     match.match_date = date
     match.match_name = match_data["mname"]
+    match.game_mode = determine_game_mode(match_data['gamemode'])
     match.duration = int(match_data["time_played"])
     match.winning_team = match_data["winning_team"]
     match.replay_log_url = match_data["s3_url"].replace(".honreplay", ".zip")

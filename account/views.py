@@ -1,11 +1,8 @@
-from django.urls import reverse
-from django.views.generic import DetailView, FormView, ListView
 from django.utils import timezone
+from django.views.generic import DetailView, ListView
 
-from account.forms import SearchForm
 from account.models import Account
 from account.tasks import fetch_player_data
-from match.models import Match
 
 
 class AccountDetailView(DetailView):
@@ -16,7 +13,7 @@ class AccountDetailView(DetailView):
 
         if (
             account.fetched_date is None
-            or account.fetched_date + timezone.timedelta(seconds=7200) < timezone.now()
+            or account.fetched_date + timezone.timedelta(seconds=300) < timezone.now()
         ):
             account = fetch_player_data(account.nickname)
         return account

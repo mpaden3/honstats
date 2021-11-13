@@ -334,6 +334,8 @@ class MatchData:
         )
 
     def update_player(self, action):
+        if action.team == 0:  # spectator
+            return
         player = self.player_buffer[action.player_num]
         player.team = action.team
         self.teams[action.team].add_player(player)

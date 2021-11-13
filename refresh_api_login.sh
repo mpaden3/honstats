@@ -1,1 +1,1 @@
-python2 extras/login_module/script.py
+python2 extras/login_module/script.py $1 $2

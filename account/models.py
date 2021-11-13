@@ -2,6 +2,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 
 from account.managers import AccountManager
+from match.constants import MODE_RANKED
 
 
 class Account(TimeStampedModel):
@@ -33,7 +34,7 @@ class Account(TimeStampedModel):
         return self.nickname
 
     def update_current_mmr(self):
-        player = self.matches.order_by("-match__match_date").first()
+        player = self.matches.filter(match__game_mode=MODE_RANKED).order_by("-match__match_date").first()
         self.current_mmr = round(player.mmr_after)
 
     def get_season_winrate(self):
