@@ -8,13 +8,18 @@ from match.models import Match
 from match.constants import MODE_RANKED, MODE_CUSTOM, MODE_MIDWARS
 
 
-def determine_game_mode(game_mode_data):
-    if game_mode_data == 'cp':
+def determine_game_mode(game_mode_data, game_map):
+    if game_map == "midwars":
+        return MODE_MIDWARS
+    if game_mode_data == "cp":
         return MODE_RANKED
-    if game_mode_data == 'cm':
+    if game_mode_data == "cm" or game_mode_data == "ap":
         return MODE_CUSTOM
+    if game_mode_data == "hb":
+        return MODE_MIDWARS
 
     return None
+
 
 def update_or_create_match_full(match_id, data):
     try:
@@ -30,7 +35,7 @@ def update_or_create_match_full(match_id, data):
     date = pytz.utc.localize(date) + timezone.timedelta(hours=-8)
     match.match_date = date
     match.match_name = match_data["mname"]
-    match.game_mode = determine_game_mode(match_data['gamemode'])
+    match.game_mode = determine_game_mode(match_data["gamemode"], match_data["map"])
     match.duration = int(match_data["time_played"])
     match.winning_team = match_data["winning_team"]
     match.replay_log_url = match_data["s3_url"].replace(".honreplay", ".zip")
@@ -41,13 +46,15 @@ def update_or_create_match_full(match_id, data):
         account = Account.objects.get_or_create_account_with_id(
             account_id, player_data["nickname"], player_data["tag"]
         )
-        if account_id not in data["inventory"][match_id]:
-            data["inventory"][match_id][account_id] = {}
+        if "inventory" not in data or account_id not in data["inventory"][match_id]:
+            inventory = {}
+        else:
+            inventory = data["inventory"][match_id][account_id]
         get_or_create_player_full(
             match,
             account,
             player_data,
-            data["inventory"][match_id][account_id],
+            inventory,
             int(match_data["time_played"]),
         )
     return match

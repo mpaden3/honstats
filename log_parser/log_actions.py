@@ -432,7 +432,7 @@ class PlayerConnectAction(LogAction):
 class PlayerTerminateAction(LogAction):
     def __init__(self, line: str):
         super().__init__()
-        self.time = int(parse_arg_val(line, "time"))
+        self.time = int(parse_arg_val(line, "time") or 0)
         self.player_num = int(parse_arg_val(line, "player"))
 
     def apply(self, match_data: MatchData):

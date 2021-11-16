@@ -5,8 +5,6 @@ from io import BytesIO
 import requests
 import zipfile
 
-from django.http import Http404
-
 from honstats.settings import BASE_DIR
 from log_parser.log_actions import MatchData, parse_log_entry
 from match.exceptions import ReplayNotFoundException

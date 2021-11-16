@@ -55,6 +55,4 @@ def get_or_create_player_full(
 
 
 def parse_boolean(string):
-    if string == "0":
-        return False
-    return True
+    return string != "0"

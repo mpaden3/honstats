@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hon_api', '0001_initial'),
+        ("hon_api", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='apikey',
-            name='password',
+            model_name="apikey",
+            name="password",
             field=models.CharField(editable=False, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='apikey',
-            name='username',
+            model_name="apikey",
+            name="username",
             field=models.CharField(editable=False, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='apikey',
-            name='cookie',
+            model_name="apikey",
+            name="cookie",
             field=models.CharField(max_length=127),
         ),
     ]

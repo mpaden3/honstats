@@ -28,6 +28,7 @@
         <tr>
             <th scope="col">Match ID</th>
             <th scope="col">Average MMR</th>
+            <th scope="col">Mode</th>
             <th scope="col">Winner</th>
             <th scope="col">Match Duration</th>
             <th scope="col">Match Date</th>
@@ -39,6 +40,7 @@
             <tr>
                 <td><a class="account-link" href="{% url 'match-detail' pk=match.match_id %}">{{ match.match_id }}</a>
                 <td>{{ match.average_mmr }}</td>
+                <td>{{ match.get_game_mode_display }}</td>
                 <td>
                     {% if match.winning_team == "1" %}
                         <span class="legion">{{ match.get_winning_team_display }}</span>

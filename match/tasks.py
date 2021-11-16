@@ -13,10 +13,7 @@ from honstats.settings import BASE_DIR
 def fetch_match_data(match_id):
     data = get_match_stats(match_id)
 
-    if (
-        "date" not in data["match_summ"][match_id]
-        or data["match_summ"][match_id]["map"] != "caldavar"
-    ):
+    if "date" not in data["match_summ"][match_id]:
         raise Http404
 
     return update_or_create_match_full(match_id, data)

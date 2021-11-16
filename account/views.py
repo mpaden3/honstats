@@ -9,7 +9,7 @@ class AccountDetailView(DetailView):
     model = Account
 
     def get_object(self, queryset=None):
-        account = super(AccountDetailView, self).get_object()
+        account = super().get_object()
 
         if (
             account.fetched_date is None

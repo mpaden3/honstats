@@ -34,8 +34,8 @@ class Account(TimeStampedModel):
         return self.nickname
 
     def update_current_mmr(self):
-        player = self.matches.filter(match__game_mode=MODE_RANKED).order_by("-match__match_date").first()
-        self.current_mmr = round(player.mmr_after)
+        if player := self.matches.filter(match__game_mode=MODE_RANKED).order_by("-match__match_date").first():
+            self.current_mmr = round(player.mmr_after)
 
     def get_season_winrate(self):
         if self.season_wins and self.season_games_played:
