@@ -8,14 +8,24 @@ from match.models import Match
 import match.constants
 
 
-def determine_game_mode(game_mode_data, game_map):
+# game modes
+# cp
+# ap All Pick, Custom Game
+# cm Captains Mode, Custom game
+# ss
+# hb Hero ban, Midwars
+# ar All Random, Midwars or Custom Game
+
+def determine_game_mode(game_mode, game_map):
     if game_map == "midwars":
         return match.constants.MODE_MIDWARS
-    if game_map == "caldavar" and game_mode_data == "cp":
-        return match.constants.MODE_RANKED
-    if game_mode_data == "cm" or game_mode_data == "ap":
+    if game_map == "devowars":
         return match.constants.MODE_CUSTOM
-    if game_mode_data == "hb":
+    if game_map == "caldavar" and game_mode == "cp":
+        return match.constants.MODE_RANKED
+    if game_mode == "cm" or game_mode == "ap" or game_mode == "ss":
+        return match.constants.MODE_CUSTOM
+    if game_mode == "hb":
         return match.constants.MODE_MIDWARS
 
     return None
@@ -40,7 +50,7 @@ def update_or_create_match_full(match_id, data):
     date = pytz.utc.localize(date) + timezone.timedelta(hours=-8)
     match.match_date = date
     match.match_name = match_data["mname"]
-    match.game_mode = determine_game_mode(match_data["gamemode"], match_data["map"])
+    match.game_mode = determine_game_mode(match_data.get("gamemode"), match_data["map"])
     match.duration = int(match_data["time_played"])
     match.winning_team = match_data["winning_team"]
     if match_data["s3_url"]:

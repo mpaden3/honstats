@@ -13,18 +13,15 @@ class AccountManager(models.Manager):
 
         account, _ = self.get_or_create(account_id=data["account_id"])
         account.super_id = data["super_id"]
-        date = datetime.strptime(data["create_date"], "%m/%d/%Y")
-        date = pytz.utc.localize(date)
-        account.create_date = date
 
-        date = datetime.strptime(data["last_activity"], "%m/%d/%Y")
-        date = pytz.utc.localize(date)
-        account.last_activity = date
+        if date := data["create_date"]:
+            account.create_date = pytz.utc.localize(datetime.strptime(date, "%m/%d/%Y"))
+        if date := data["last_activity"]:
+            account.last_activity = pytz.utc.localize(datetime.strptime(date, "%m/%d/%Y"))
 
         nickname, tag = parse_nickname_tag(data["nickname"])
         account.nickname = nickname
         account.clan_tag = tag
-        account.last_activity = datetime.strptime(data["last_activity"], "%m/%d/%Y")
         account.games_played = int(data["games_played"])
         account.total_games_played = int(data["total_games_played"])
         account.season_games_played = int(data["curr_season_cam_games_played"])
