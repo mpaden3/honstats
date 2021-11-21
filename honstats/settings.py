@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
 
@@ -50,6 +52,7 @@ AWS_DEFAULT_ACL = "public-read"
 CLIENT_REQUESTER_URL = (
     "http://masterserver.naeu.heroesofnewerth.com/client_requester.php"
 )
+REQUEST_TIMEOUT = 300
 
 # Application definition
 
@@ -73,6 +76,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "honstats.middleware.HealthCheckMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -150,3 +154,16 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+sentry_sdk.init(
+    dsn="https://c6f619c0c33140dfb83e45714bd4428e@o1073897.ingest.sentry.io/6073535",
+    integrations=[DjangoIntegration()],
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+    release=os.getenv("SENTRY_RELEASE"),
+)

@@ -30,16 +30,26 @@ Honstats - Match #{{ object.match_id }}
             <tr>
                 <td>Analysis depth: <span class="span-networth">{{ object.parsed_level|match_state_verbose }}</span>
                 </td>
-            </tr>            <tr>
+            </tr>
+            <tr>
                 <td>Game Mode: <span class="hellbourne">{{ object.get_game_mode_display }}</span>
                 </td>
             </tr>
 
         </table>
     </div>
+    <div class="match-info card card-body bg-dark text-light">
+        <table>
+                        <tr>
+                <td>
+                    <h1>{{ object.winning_team | winner | safe }}</h1>
+                    <h1>{{ object.get_kills | match_results }}</h1></td>
+            </tr>
+        </table>
+    </div>
     <ul class="nav nav-tabs bg-dark text-light">
         <li class="nav-item">
-            <button class="nav-link btn btn-outline-light " type='button' id='combat-toggle'>Combat Stats</button>
+            <button class="nav-link btn btn-outline-light active" type='button' id='combat-toggle'>Combat Stats</button>
         </li>
         <li class="nav-item active">
             <button class="nav-link btn btn-outline-light" type='button' id='support-toggle'>Support Stats</button>
@@ -52,20 +62,21 @@ Honstats - Match #{{ object.match_id }}
         $('#combat-toggle').prop('disabled', true);
         $('#combat-toggle').on('click', function(event) {
             $(this).prop('disabled', true);
+            $(this).addClass("active");
+            $("#support-toggle").removeClass("active");
             $('#support-toggle').prop('disabled', false);
             $('.combat-info').toggle(toggle_speed);
             $('.support-info').toggle(toggle_speed);
         });
         $('#support-toggle').on('click', function(event) {
             $(this).prop('disabled', true);
+            $(this).addClass("active");
+            $("#combat-toggle").removeClass("active");
             $('#combat-toggle').prop('disabled', false);
             $('.combat-info').toggle(toggle_speed);
             $('.support-info').toggle(toggle_speed);
         });
     });
-
-
-
     </script>
     <div class="tab-content">
         <table class="table table-striped table-dark">
@@ -354,6 +365,7 @@ Honstats - Match #{{ object.match_id }}
 
 
 
+
     </script>
 </div>
 <div class="graph-div" id="player-networth-graph">
@@ -520,6 +532,7 @@ Honstats - Match #{{ object.match_id }}
                         }
                     }
                 });
+
 
 
 

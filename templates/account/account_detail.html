@@ -31,49 +31,49 @@
         </tr>
     </table>
 </div>
-<table class="table table-striped table-dark">
-    <thead>
-    <tr>
-        <th scope="col">Hero</th>
-        <th scope="col">Stats</th>
-        <th scope="col">Result</th>
-        <th scope="col">Duration</th>
-        <th scope="col">Avg MMR</th>
-        <th scope="col">Game Mode</th>
-        <th scope="col">Match ID</th>
-        <th scope="col">Date</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for player in matches %}
-    <tr>
-        <td><img src="{% static player.hero_id|hero_icon %}" class="item-icon"
-                 title="{{ player.hero.name }}" alt="{{ player.hero.name }}"/> {{ player.hero.name }}
-        </td>
-        <td><span class="span-kills">{{ player.hero_kills }}</span> /
-            <span class="span-deaths">{{ player.deaths }}</span> /
-            <span class="span-assists">{{ player.hero_assists }}</span>
-        </td>
-        <td>
-            {% if player.is_winner %}<span class="legion">Win</span>
-            {% else %}
-            <span class="hellbourne">Loss</span>
-            {% endif %}
-            {% if player.mmr_diff and player.mmr_diff > 0 %}
-            <span class="legion">(+{{ player.mmr_diff }})</span>
-            {% elif player.mmr_diff and player.mmr_diff < 0 %}
-            <span class="hellbourne">({{ player.mmr_diff }})</span>
-            {% endif %}
-        </td>
-        <td>{{ player.match.duration_format|default_if_none:"-" }}</td>
-        <td>{{ player.match.average_mmr|default_if_none:"-" }}</td>
-        <td>{{ player.match.get_game_mode_display}}</td>
-        <td><a class="account-link" href="{% url 'match-detail' pk=player.match_id %}">{{ player.match_id }}</a>
-        </td>
-        <td class="utc-date">{{ player.match.match_date|date:'Y-m-d H:i' }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+<div>
+    <div class="match-table-header">
+        <ul class="nav nav-tabs bg-dark text-light">
+            <li class="nav-item active">
+                <button class="nav-link btn btn-outline-light game-mode-button active" type='button' data-match-mode='R'>Ranked Matches
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link btn btn-outline-light game-mode-button" type='button' data-match-mode='M'>Midwars</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link btn btn-outline-light game-mode-button" type='button' data-match-mode='C'>Custom Games</button>
+            </li>
+        </ul>
+    </div>
 
+    <div class="match-table loader">
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        get_matches("R");
+    });
+    function get_matches(game_mode){
+        $.ajax({
+            url: '/account/{{ object.account_id }}/matches?game_mode='.concat(game_mode),
+            success: function(data) {
+                $(".match-table").removeClass("loader");
+                $(".match-table").html(data);
+            }
+        });
+    };
+
+
+    $('.game-mode-button').on('click', function(event) {
+        $(".match-table").html("");
+        $(".match-table").addClass("loader");
+        get_matches($(this).attr("data-match-mode"));
+        $(".game-mode-button").removeClass("active");
+        $(this).addClass("active");
+    });
+
+
+
+</script>
 {% endblock %}

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 from game_data.utils import is_ward, is_consumable, REV_WARD, OBS_WARD
+from log_parser.exceptions import UnexpectedPlayerException
 from log_parser.utils import parse_arg_val
 
 PLAYER_CONNECT = "PLAYER_CONNECT"
@@ -391,7 +392,7 @@ class MatchData:
         for team in self.teams.values():
             if player := team.get_player(player_num):
                 return player
-        return None
+        raise UnexpectedPlayerException("find_player = -1")
 
     def find_team_by_player(self, player_num):
         for team in self.teams.values():
@@ -432,7 +433,7 @@ class PlayerConnectAction(LogAction):
 class PlayerTerminateAction(LogAction):
     def __init__(self, line: str):
         super().__init__()
-        self.time = int(parse_arg_val(line, "time"))
+        self.time = int(parse_arg_val(line, "time") or 0)
         self.player_num = int(parse_arg_val(line, "player"))
 
     def apply(self, match_data: MatchData):

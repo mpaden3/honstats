@@ -81,3 +81,17 @@ def percentage(value):
     if value is None:
         return format(0, ".0%")
     return format(value, ".0%")
+
+
+@register.filter
+def match_results(args):
+    team1_kills = args[0]
+    team2_kills = args[1]
+    return f"{team1_kills} : {team2_kills}"
+
+
+@register.filter
+def winner(winner):
+    if winner == "1":
+        return "<span class='legion'>Legion</span> Wins!"
+    return "<span class='hellbourne'>Hellbourne</span> Wins!"

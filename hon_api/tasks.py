@@ -13,7 +13,9 @@ def api_login():
     username = api_key.username
     password = api_key.password
     result = subprocess.run(
-        [f"./refresh_api_login.sh { username} {password}"], stdout=subprocess.PIPE, shell=True
+        [f"./refresh_api_login.sh {username} {password}"],
+        stdout=subprocess.PIPE,
+        shell=True,
     )
 
     cookie = result.stdout.decode().replace("\n", "")
@@ -56,11 +58,11 @@ def show_stats(nickname):
     return data
 
 
-def match_history_overview(nickname, num_of_matches=100, current_season=1):
+def match_history_overview(account, table, num_of_matches=100, current_season=1):
     request_data = {
         "f": "match_history_overview",
-        "table": "campaign",
-        "nickname": nickname,
+        "table": table,
+        "nickname": account.nickname,
         "num": num_of_matches,
         "current_season": current_season,
     }

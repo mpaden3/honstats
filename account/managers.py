@@ -11,14 +11,7 @@ from account.utils import parse_nickname_tag
 class AccountManager(models.Manager):
     def get_or_create_account_from_stats(self, data):
 
-        model = self._get_model()
-
-        try:
-            account = self.get(account_id=data["account_id"])
-        except model.DoesNotExist:
-            account = model(
-                account_id=data["account_id"],
-            )
+        account, _ = self.get_or_create(account_id=data["account_id"])
         account.super_id = data["super_id"]
         date = datetime.strptime(data["create_date"], "%m/%d/%Y")
         date = pytz.utc.localize(date)

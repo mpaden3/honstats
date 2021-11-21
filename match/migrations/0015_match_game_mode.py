@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('match', '0014_player_uncountered_wards'),
+        ("match", "0014_player_uncountered_wards"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='match',
-            name='game_mode',
-            field=models.TextField(choices=[('R', 'Ranked'), ('C', 'Custom'), ('M', 'Midwars')], default='R', max_length=1),
+            model_name="match",
+            name="game_mode",
+            field=models.TextField(
+                choices=[("R", "Ranked"), ("C", "Custom"), ("M", "Midwars")],
+                default="R",
+                max_length=1,
+            ),
         ),
     ]

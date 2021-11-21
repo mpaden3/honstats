@@ -93,6 +93,16 @@ class Match(TimeStampedModel):
             return 0
         return round(total / players)
 
+    def get_kills(self):
+        team1_kills = 0
+        team2_kills = 0
+        for player in self.player_set.all():
+            if player.team == "1":
+                team1_kills += player.hero_kills
+            if player.team == "2":
+                team2_kills += player.hero_kills
+        return team1_kills, team2_kills
+
 
 class Player(TimeStampedModel):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)

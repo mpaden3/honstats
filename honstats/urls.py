@@ -35,4 +35,10 @@ urlpatterns = [
     path("match/", include("match.urls")),
     path("account/", include("account.urls")),
     path("blog/", include("blog.urls")),
+    path(
+        "robots.txt",
+        TemplateView.as_view(
+            template_name="../templates/robots.txt", content_type="text/plain"
+        ),
+    ),
 ]

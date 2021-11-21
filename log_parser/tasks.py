@@ -5,9 +5,8 @@ from io import BytesIO
 import requests
 import zipfile
 
-from django.http import Http404
-
 from honstats.settings import BASE_DIR
+from log_parser.exceptions import UnexpectedPlayerException
 from log_parser.log_actions import MatchData, parse_log_entry
 from match.exceptions import ReplayNotFoundException
 from match.models import Match
@@ -18,6 +17,8 @@ def parse_match_data(match_id: int):
     if not match.is_fetched():
         return match
     url = match.replay_log_url
+    if not url:
+        raise ReplayNotFoundException
     zip_file = requests.get(url, allow_redirects=True)
     if zip_file.status_code != 200:
         raise ReplayNotFoundException
@@ -37,7 +38,10 @@ def parse_match_data(match_id: int):
         except UnicodeDecodeError:
             continue
         if action:
-            action.apply(match_data)
+            try:
+                action.apply(match_data)
+            except UnexpectedPlayerException:
+                continue
 
     match_data.dump_data(match)
     match.parsed_level = Match.REPLAY
