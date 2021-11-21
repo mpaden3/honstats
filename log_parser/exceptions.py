@@ -1,0 +1,2 @@
+class UnexpectedPlayerException(Exception):
+    pass

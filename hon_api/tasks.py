@@ -58,11 +58,11 @@ def show_stats(nickname):
     return data
 
 
-def match_history_overview(nickname, table, num_of_matches=100, current_season=1):
+def match_history_overview(account, table, num_of_matches=100, current_season=1):
     request_data = {
         "f": "match_history_overview",
         "table": table,
-        "nickname": nickname,
+        "nickname": account.nickname,
         "num": num_of_matches,
         "current_season": current_season,
     }

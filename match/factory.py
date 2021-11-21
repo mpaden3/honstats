@@ -4,11 +4,8 @@ from match.constants import MODE_RANKED
 from match.models import Player, Match
 
 
-def get_or_create_player_basic(match, account, match_dat):
-    try:
-        player = Player.objects.get(account=account, match=match)
-    except Player.DoesNotExist:
-        player = Player(account=account, match=match)
+def get_or_create_player_basic(match: Match, account: Account, match_dat):
+    player, _ = Player.objects.get_or_create(account=account, match=match)
     player.team = match_dat["team"]
     player.hero_kills = match_dat["herokills"]
     player.deaths = match_dat["deaths"]
@@ -21,11 +18,7 @@ def get_or_create_player_basic(match, account, match_dat):
 def get_or_create_player_full(
     match: Match, account: Account, data, inventory, time_played: int
 ):
-    try:
-        player = Player.objects.get(account=account, match=match)
-    except Player.DoesNotExist:
-        player = Player(account=account, match=match)
-
+    player, _ = Player.objects.get_or_create(account=account, match=match)
     player.team = data["team"]
     player.position = data["position"]
     player.level = int(data["level"])
