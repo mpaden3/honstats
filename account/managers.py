@@ -22,11 +22,11 @@ class AccountManager(models.Manager):
         nickname, tag = parse_nickname_tag(data["nickname"])
         account.nickname = nickname
         account.clan_tag = tag
-        account.games_played = int(data["games_played"])
-        account.total_games_played = int(data["total_games_played"])
-        account.season_games_played = int(data["curr_season_cam_games_played"])
-        account.season_wins = int(data["cam_wins"])
-        account.season_losses = int(data["cam_losses"])
+        account.games_played = int(data.get("games_played") or 0)
+        account.total_games_played = int(data.get("total_games_played") or 0)
+        account.season_games_played = int(data.get("curr_season_cam_games_played") or 0)
+        account.season_wins = int(data.get("cam_wins") or 0)
+        account.season_losses = int(data.get("cam_losses") or 0)
         account.fetched_date = timezone.now()
         account.save()
         return account
