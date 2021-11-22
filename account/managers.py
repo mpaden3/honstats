@@ -32,13 +32,9 @@ class AccountManager(models.Manager):
         return account
 
     def get_or_create_account_with_id(self, account_id, nickname, tag):
+        account, created = self.get_or_create(account_id=account_id)
 
-        model = self._get_model()
-
-        try:
-            account = self.get(account_id=account_id)
-        except model.DoesNotExist:
-            account = model(account_id=account_id)
+        if created:
             account.nickname = nickname
             if tag != "":
                 account.clan_tag = tag
