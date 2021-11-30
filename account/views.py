@@ -28,21 +28,18 @@ class AccountDetailView(DetailView):
             account.save()
         return account
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["matches"] = self.object.matches.all().order_by("-match__match_date")[
-            :30
-        ]
-
-        return context
-
 
 class AccountMatchesAjaxView(DetailView):
     model = Account
     template_name = "match/match_list_ajax.html"
 
     def get(self, request, *args, **kwargs):
-        is_ajax = request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+        is_ajax = (
+            request.META.get(
+                "HTTP_X_REQUESTED_WITH",
+            )
+            == "XMLHttpRequest"
+        )
         if not is_ajax:
             return HttpResponse(status=400)
         game_mode = self.request.GET["game_mode"].upper()
@@ -69,3 +66,29 @@ class AccountListView(ListView):
         .order_by("-current_mmr")
         .all()[:100]
     )
+
+
+class AccountSearch(ListView):
+    template_name = "account/account_search.html"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.search_term = ""
+        self.exact_match = None
+
+    def get(self, request, **kwargs):
+        self.search_term = self.request.GET["s"]
+        try:
+            self.exact_match = Account.objects.get(nickname=self.search_term)
+        except Account.DoesNotExist:
+            pass
+        return super().get(request, **kwargs)
+
+    def get_queryset(self):
+        return Account.objects.filter(nickname__icontains=self.search_term)[:100]
+
+    def get_context_data(self, object_list=None, **kwargs):
+        context_data = super().get_context_data(object_list=None, **kwargs)
+        context_data["exact_match"] = self.exact_match
+
+        return context_data

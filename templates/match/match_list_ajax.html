@@ -1,6 +1,7 @@
 {% load static %}
 {% load match_extras %}
 <table class="table table-striped table-dark">
+    {% if matches|length > 0 %}
     <thead>
     <tr>
         <th scope="col">Hero</th>
@@ -43,9 +44,14 @@
     </tr>
     {% endfor %}
     </tbody>
+    {% else %}
+    <tr>
+        <td style="text-align:center">No results</td>
+    </tr>
+    {% endif %}
 </table>
 
-    <script>
+<script>
         $(document).ready(function () {
             var dates = document.getElementsByClassName('utc-date')
 
@@ -55,4 +61,5 @@
             }
 
         });
-    </script>
+
+</script>

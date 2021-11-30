@@ -1,0 +1,8 @@
+{% for blog_post in blog_posts %}
+<div class="graph-div">
+    <h1 class="hellbourne">{{ blog_post.title }}</h1>
+    <p>{{ blog_post.created|date:"d.m.Y" }}</p>
+    <br>
+    <p>{{ blog_post.content|safe }}</p>
+</div>
+{% endfor %}

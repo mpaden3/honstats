@@ -91,7 +91,7 @@ def match_results(args):
 
 
 @register.filter
-def winner(winner):
-    if winner == "1":
-        return "<span class='legion'>Legion</span> Wins!"
-    return "<span class='hellbourne'>Hellbourne</span> Wins!"
+def team_verbose(team):
+    if team == Match.TEAM_LEGION:
+        return "<span class='legion'>Legion</span>"
+    return "<span class='hellbourne'>Hellbourne</span>"

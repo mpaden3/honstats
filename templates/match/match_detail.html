@@ -40,10 +40,14 @@ Honstats - Match #{{ object.match_id }}
     </div>
     <div class="match-info card card-body bg-dark text-light">
         <table>
-                        <tr>
+            <tr>
                 <td>
-                    <h1>{{ object.winning_team | winner | safe }}</h1>
-                    <h1>{{ object.get_kills | match_results }}</h1></td>
+                    <h1>{{ object.winning_team | team_verbose | safe }} wins!</h1>
+                    <h1>{{ object.get_kills | match_results }}</h1>
+                    {% if object.concede %}
+                    <h4>{{ object.losing_team | team_verbose | safe }} conceded.</h4>
+                    {% endif %}
+                </td>
             </tr>
         </table>
     </div>
@@ -77,6 +81,9 @@ Honstats - Match #{{ object.match_id }}
             $('.support-info').toggle(toggle_speed);
         });
     });
+
+
+
     </script>
     <div class="tab-content">
         <table class="table table-striped table-dark">
@@ -98,10 +105,16 @@ Honstats - Match #{{ object.match_id }}
             </thead>
             <tbody>
             <tr>
-                <th class="legion" scope="col">Legion
+                <th scope="col">{{ match.TEAM_LEGION | team_verbose | safe }}
                     {% if match.winning_team == match.TEAM_LEGION %}
                     <span class="span-networth font-italic">(winner)</span>
                     {% endif %}
+                </th>
+                <th colspan="20">
+                    Kong:
+                    {% for i in match.get_legion_boss_kills_range %}
+                    <img src="{% static 'img/kongor.jpg' %}" class="kong-icon"/>
+                    {% endfor %}
                 </th>
             </tr>
             {% for player in players %}
@@ -155,10 +168,16 @@ Honstats - Match #{{ object.match_id }}
             {% endfor %}
 
             <tr>
-                <th class="hellbourne" scope="col">Hellbourne
+                <th class="hellbourne" scope="col">{{ match.TEAM_HELLBOURNE | team_verbose | safe }}
                     {% if match.winning_team == match.TEAM_HELLBOURNE %}
                     <span class="span-networth font-italic">(winner)</span>
                     {% endif %}
+                </th>
+                                <th colspan="20">
+                    Kong:
+                    {% for i in match.get_hellbourne_boss_kills_range %}
+                    <img src="{% static 'img/kongor.jpg' %}" class="kong-icon"/>
+                    {% endfor %}
                 </th>
             </tr>
             {% for player in players %}
@@ -366,6 +385,9 @@ Honstats - Match #{{ object.match_id }}
 
 
 
+
+
+
     </script>
 </div>
 <div class="graph-div" id="player-networth-graph">
@@ -532,6 +554,9 @@ Honstats - Match #{{ object.match_id }}
                         }
                     }
                 });
+
+
+
 
 
 

@@ -16,6 +16,7 @@ import match.constants
 # hb Hero ban, Midwars
 # ar All Random, Midwars or Custom Game
 
+
 def determine_game_mode(game_mode, game_map):
     if game_map == "midwars":
         return match.constants.MODE_MIDWARS

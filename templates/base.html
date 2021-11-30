@@ -7,14 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.96, maximum-scale=5.0, minimum-scale=0.96">
     {% endblock %}
     {% block meta-keywords %}
-    <meta name="keywords" content="hon stats, statistics, heroes of newerth, matches, match data" />
+    <meta name="keywords" content="hon stats, statistics, heroes of newerth, matches, match data"/>
     {% endblock %}
     {% block meta-custom %}
     {% endblock %}
     {% if use_ga %}
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3CX26WQZMP"></script>
-        <script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3CX26WQZMP"></script>
+    <script>
             window.dataLayer = window.dataLayer || [];
 
             function gtag() {
@@ -24,7 +24,8 @@
             gtag('js', new Date());
 
             gtag('config', 'G-3CX26WQZMP');
-        </script>
+
+    </script>
     {% endif %}
     <link rel="icon"
           type="image/icon"
@@ -47,6 +48,7 @@
             }
 
         });
+
     </script>
 </head>
 
@@ -63,23 +65,23 @@
             <a class="nav-item nav-link" href="{% url 'account-list' %}">Leaderboard</a>
             <a class="nav-item nav-link disabled" href="{% url 'about' %}">Items</a>
             <a class="nav-item nav-link disabled" href="{% url 'about' %}">Heroes</a>
-                        <a class="nav-item nav-link" href="{% url 'blog-list' %}">Blog</a>
+            <a class="nav-item nav-link" href="{% url 'blog-list' %}">Blog</a>
             <a class="nav-item nav-link" href="{% url 'qna' %}">Q&A</a>
             <a class="nav-item nav-link" href="{% url 'about' %}">About</a>
         </div>
     </div>
     {% block search_form %}
-        <form class="form-inline my-2 my-lg-0" action="{% url 'homepage' %}" method="post">
-            {% csrf_token %}
-            <input class="form-control mr-sm-2 main-search" type="search" name="search_term"
-                   placeholder="Search player or match ID" aria-label="Search">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
-        </form>
+    <form class="form-inline my-2 my-lg-0" action="{% url 'homepage' %}" method="post">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2 main-search" type="search" name="search_term"
+               placeholder="Search player or match ID" aria-label="Search">
+        <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+    </form>
     {% endblock %}
     {% if user.is_authenticated %}
-        <div class="my-2 my-lg-0 navbar-nav">
-            <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
-        </div>
+    <div class="my-2 my-lg-0 navbar-nav">
+        <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
+    </div>
     {% endif %}
 </nav>
 <div id="content" class="container">

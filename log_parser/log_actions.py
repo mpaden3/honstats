@@ -3,9 +3,10 @@ import sys
 from abc import ABC, abstractmethod
 from typing import Dict
 
-from game_data.utils import is_ward, is_consumable, REV_WARD, OBS_WARD
+from game_data.utils import is_ward, is_consumable, REV_WARD, OBS_WARD, is_boss
 from log_parser.exceptions import UnexpectedPlayerException
 from log_parser.utils import parse_arg_val
+from match.models import Match
 
 PLAYER_CONNECT = "PLAYER_CONNECT"
 PLAYER_DISCONNECT = "PLAYER_DISCONNECT"
@@ -58,8 +59,10 @@ def parse_log_entry(line: str):
         return GoldLostAction(line)
     if args[0] == PLAYER_BUYBACK:
         return PlayerBuybackAction(line)
+    if args[0] == GAME_END:
+        return GameEndAction(line, concede=False)
     if args[0] == GAME_END or args[0] == GAME_CONCEDE:
-        return GameEndAction(line)
+        return GameEndAction(line, concede=True)
     else:
         return None
 
@@ -205,8 +208,8 @@ class PlayerData:
 
 class TeamData:
     def __init__(self):
-        super().__init__()
         self.player_datas: Dict[int, PlayerData] = {}
+        self.boss_kills = 0
 
     def add_player(self, player_data):
         self.player_datas[player_data.player_num] = player_data
@@ -255,18 +258,26 @@ class TeamData:
     def num_of_active_players(self):
         return len(self.get_active_players())
 
+    def add_boss_kill(self):
+        self.boss_kills += 1
+
 
 class MatchData:
     def __init__(self):
         self.player_buffer: Dict[int, PlayerData] = {}
         self.teams: Dict[int, TeamData] = {1: TeamData(), 2: TeamData()}
         self.end_time = 0
+        self.concede = False
 
     # main function
     def dump_data(self, match):
 
         interval = 40000
-
+        match.concede = self.concede
+        match.boss_kills = {
+            Match.TEAM_LEGION: self.teams[1].boss_kills,
+            Match.TEAM_HELLBOURNE: self.teams[2].boss_kills,
+        }
         networth_diff = {}
         for i in range(0, self.end_time, interval):
             networth_diff[i] = self.get_networth_diff(i)
@@ -417,6 +428,9 @@ class MatchData:
         owner = self.find_player(action.owner)
         owner.add_countered_ward()
 
+    def boss_kill(self, action):
+        self.teams[action.team].add_boss_kill()
+
 
 class PlayerConnectAction(LogAction):
     def __init__(self, line: str):
@@ -510,9 +524,11 @@ class ItemSellAction(LogAction):
 
 
 # KILL time:358900 x:5039 y:7559 z:530 player:5 team:1 target:"Gadget_FlamingEye" attacker:"Gadget_Item_ManaEye" owner:8
+# KILL time:1096700 x:3740 y:7929 z:301 player:4 team:2 target:"Reborn_GolemBoss_Legion" attacker:"Hero_Bushwack"
 class KillAction(LogAction):
     WARD_KILL_TYPE = "WARD_KILL_TYPE"
     DEFAULT_KILL_TYPE = "DEFAULT_KILL_TYPE"
+    BOSS_KILL_TYPE = "BOSS_KILL_TYPE"
 
     def __init__(self, line: str):
         self.kill_type = KillAction.DEFAULT_KILL_TYPE
@@ -520,10 +536,16 @@ class KillAction(LogAction):
         if is_ward(self.target):
             self.kill_type = KillAction.WARD_KILL_TYPE
             self.owner = int(parse_arg_val(line, "owner"))
+        if is_boss(self.target):
+            self.kill_type = KillAction.BOSS_KILL_TYPE
+            self.team = int(parse_arg_val(line, "team"))
+            self.player = int(parse_arg_val(line, "player"))
 
     def apply(self, match_data: MatchData):
         if self.kill_type == KillAction.WARD_KILL_TYPE:
             match_data.ward_kill(self)
+        if self.kill_type == KillAction.BOSS_KILL_TYPE:
+            match_data.boss_kill(self)
 
 
 # GOLD_EARNED time:843350 x:2112 y:12495 z:128 player:6 team:2 source:"Creep_LegionMelee" gold:46
@@ -577,8 +599,10 @@ class PlayerBuybackAction(LogAction):
 
 # GOLD_LOST time:858450 x:8008 y:6468 z:0 player:7 team:1 source:"Hero_Tarot" owner:5 gold:223
 class GameEndAction(LogAction):
-    def __init__(self, line: str):
+    def __init__(self, line: str, concede: bool):
         self.time = int(parse_arg_val(line, "time"))
+        self.concede = concede
 
     def apply(self, match_data: MatchData):
         match_data.end_time = self.time
+        match_data.concede = self.concede

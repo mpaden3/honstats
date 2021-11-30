@@ -10,7 +10,6 @@ from match.managers import MatchManager
 
 
 class Match(TimeStampedModel):
-
     objects = MatchManager()
 
     TEAM_EMPTY = "0"
@@ -47,6 +46,7 @@ class Match(TimeStampedModel):
     )
     replay_log_url = models.CharField(max_length=511)
     duration = models.IntegerField(null=True)
+    concede = models.BooleanField(default=False)
     winning_team = models.TextField(
         max_length=1, choices=WINNING_TEAM, default=TEAM_EMPTY
     )
@@ -55,6 +55,7 @@ class Match(TimeStampedModel):
     # Parsed data
     networth_diff = models.JSONField(null=True)
     exp_diff = models.JSONField(null=True)
+    boss_kills = models.JSONField(null=True)
 
     class Meta:
         ordering = ["-match_id"]
@@ -79,6 +80,20 @@ class Match(TimeStampedModel):
             return self.match_name
         return str(self.match_id)
 
+    def get_boss_kills_range(self, team):
+        kills = 0
+        if self.boss_kills:
+            kills = self.boss_kills.get(team) or 0
+        return range(kills)
+
+    @property
+    def get_legion_boss_kills_range(self):
+        return self.get_boss_kills_range(Match.TEAM_LEGION)
+
+    @property
+    def get_hellbourne_boss_kills_range(self):
+        return self.get_boss_kills_range(Match.TEAM_HELLBOURNE)
+
     def average_mmr(self):
         if self.parsed_level == self.KNOWN:
             return None
@@ -102,6 +117,13 @@ class Match(TimeStampedModel):
             if player.team == "2":
                 team2_kills += player.hero_kills
         return team1_kills, team2_kills
+
+    def losing_team(self):
+        if self.winning_team == Match.TEAM_LEGION:
+            return Match.TEAM_HELLBOURNE
+        if self.winning_team == Match.TEAM_HELLBOURNE:
+            return Match.TEAM_LEGION
+        return Match.TEAM_EMPTY
 
 
 class Player(TimeStampedModel):

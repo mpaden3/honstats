@@ -9,7 +9,13 @@ body {
     height: 47px;
     box-shadow: 1px 2px 2px 1px #222;
 }
-
+.kong-icon{
+    border: 1px #333333 solid;
+    width: 30px;
+    height: 30px;
+    box-shadow: 1px 2px 2px 1px #222;
+    display:inline;
+}
 .span-assists {
     color: darkorange;
 }
@@ -112,6 +118,12 @@ body {
   margin: auto;
   margin-top: 100px;
 
+}
+.exact-match{
+  border-top: 3px solid red;
+  border-left: 2px solid red;
+  border-right: 2px solid red;
+  border-bottom: 2px solid red;
 }
 @keyframes spin {
   0% { transform: rotate(0deg); }

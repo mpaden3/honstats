@@ -50,6 +50,12 @@ def is_ward(item):
     return item in WARD_IDS
 
 
+def is_boss(unit):
+    if unit == "Reborn_GolemBoss_Legion" or unit == "Reborn_GolemBoss_Legion":
+        return True
+    return False
+
+
 def is_consumable(item_code):
     consumables = [
         "Item_HomecomingStone",

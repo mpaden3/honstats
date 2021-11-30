@@ -13,13 +13,7 @@
 {% endblock %}
 
 {% block content %}
-    {% for blog_post in blog_posts %}
-        <div class="graph-div">
-                <h1 class="hellbourne">{{ blog_post.title }}</h1>
-                <br>
-                <p>{{ blog_post.content|safe }}</p>
-        </div>
-    {% endfor %}
+    {% include "blog/blogpost_list_fragment.html" %}
     <div class="match-info card card-body bg-dark text-light">
         <h2 class="hellbourne">Recent HoN matches</h2>
     </div>
