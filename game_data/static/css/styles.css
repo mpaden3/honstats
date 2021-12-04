@@ -129,3 +129,19 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.tooltip-custom{
+    border-radius : 100px;
+    font-size : 14px;
+    color: black;
+    padding : 2px 8px;
+}
+.tooltip-icon{
+    width :30px;
+    height :30px;
+}
+.replay-info{
+    width: 75%;
+    text-align : right;
+    padding-top : 8px;
+
+}

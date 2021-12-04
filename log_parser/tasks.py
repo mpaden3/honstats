@@ -14,8 +14,6 @@ from match.models import Match
 
 def parse_match_data(match_id: int):
     match = Match.objects.get(match_id=match_id)
-    if not match.is_fetched():
-        return match
     url = match.replay_log_url
     if not url:
         raise ReplayNotFoundException

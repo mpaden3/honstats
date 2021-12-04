@@ -58,6 +58,15 @@ Honstats - Match #{{ object.match_id }}
         <li class="nav-item active">
             <button class="nav-link btn btn-outline-light" type='button' id='support-toggle'>Support Stats</button>
         </li>
+        <li class="nav-item replay-info">
+            {% if object.parsed_level == object.NOT_FOUND %}
+            Why don't I see full match data <span
+                class="btn btn-secondary tooltip-custom" data-toggle="tooltip"
+                data-placement="top"
+                title="Replays are unavailable for matches older than two weeks and for matches that have just been played. If the match has been played recently and additional data is still unavailable, please try again in a couple of minutes.">
+                        ?
+                    </span>{% endif%}
+        </li>
     </ul>
     <script>
     $(document).ready(function(){
@@ -80,9 +89,8 @@ Honstats - Match #{{ object.match_id }}
             $('.combat-info').toggle(toggle_speed);
             $('.support-info').toggle(toggle_speed);
         });
+        $("body").tooltip({ selector: '[data-toggle=tooltip]' });
     });
-
-
 
     </script>
     <div class="tab-content">
@@ -94,12 +102,45 @@ Honstats - Match #{{ object.match_id }}
                 <th style="width: 100px; min-width: 100px" scope="col">K / D / A</th>
                 <th style="width: 30px" scope="col">Level</th>
                 <th style="min-width: 90px" scope="col">LH / DN</th>
-                <th style="width: 60px" scope="col">Net Worth</th>
-                <th class="combat-info hellbourne" style="width: 60px" scope="col">Hero</th>
-                <th class="combat-info hellbourne" style="width: 60px" scope="col">Tower</th>
+                <th style="width: 60px" scope="col">
+                    <img
+                            class="tooltip-icon"
+                            src="{% static 'img/web_icons/icons8-stack-of-coins-48.png' %}" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Net worth - a sum of player's items and current gold"/>
+                </th>
+                <th class="combat-info hellbourne" style="width: 60px" scope="col">
+                    <img
+                            class="tooltip-icon"
+                            src="{% static 'img/web_icons/icons8-sword-30.png' %}" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Hero damage"/>
+                </th>
+                <th class="combat-info hellbourne" style="width: 60px" scope="col">
+                    <img
+                            class="tooltip-icon"
+                            src="{% static 'img/web_icons/icons8-ruin-64.png' %}" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Building damage"/>
+                </th>
                 <th class="support-info legion" style="width: 60px" scope="col">Wards</th>
-                <th class="support-info legion" style="width: 60px" scope="col">Ward Success</th>
-                <th class="support-info legion" style="width: 60px" scope="col">Dewards</th>
+                <th class="support-info legion" style="width: 60px" scope="col">
+                    <span
+                            class="btn btn-secondary tooltip-custom" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Percentage of placed wards that haven't been found by the enemy team (includes both Sight and Rev wards)">
+                        ?
+                    </span>Ward Success
+                </th>
+                <th class="support-info legion" style="width: 80px" scope="col">
+                    <span
+                            class="btn btn-secondary tooltip-custom" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Number of wards this player has found and destroyed">
+                        ?
+                    </span>
+                    Dewards
+                </th>
                 <th style="width: 550px; min-width: 350px" scope="col">Items</th>
             </tr>
             </thead>
@@ -173,7 +214,7 @@ Honstats - Match #{{ object.match_id }}
                     <span class="span-networth font-italic">(winner)</span>
                     {% endif %}
                 </th>
-                                <th colspan="20">
+                <th colspan="20">
                     Kong:
                     {% for i in match.get_hellbourne_boss_kills_range %}
                     <img src="{% static 'img/kongor.jpg' %}" class="kong-icon"/>
@@ -246,6 +287,16 @@ Honstats - Match #{{ object.match_id }}
                 var networth = JSON.parse(document.getElementById('networth').textContent);
                 networth = JSON.parse(networth);
 
+                function transformData(data){
+                    var keys = Object.keys(data);
+                    var vals = Object.values(data);
+                    var result = [];
+                    for (var i = 0; i < keys.length; i++){
+                        result.push( {x : keys[i], y : vals[i]});
+                    }
+                    return result;
+                }
+
                 var experience = JSON.parse(document.getElementById('experience').textContent);
                 experience = JSON.parse(experience);
 
@@ -272,22 +323,24 @@ Honstats - Match #{{ object.match_id }}
                 }
 
                 new Chart(document.getElementById("net-xp-chart"), {
-                    type: 'line',
+                    type: 'scatter',
                     data: {
-                        labels: Object.keys(networth).map(msToTime),
-                        datasets: [{
-                            data: Object.values(networth),
-                            label: "Team Networth Difference",
-                            borderColor: "darkgoldenrod",
-                            fill: true,
-                            backgroundColor: "rgba(184,	134	,11, 0.4)",
-                            lineTension: 0,
-                        },
+                        datasets: [
                             {
-                                data: Object.values(experience),
+                                data: transformData(networth),
+                                label: "Team Networth Difference",
+                                borderColor: "darkgoldenrod",
+                                fill: true,
+                                showLine: true,
+                                backgroundColor: "rgba(184,	134	,11, 0.4)",
+                                lineTension: 0,
+                            },
+                            {
+                                data: transformData(experience),
                                 label: "Team Experience Difference",
                                 borderColor: "deepskyblue",
                                 fill: false,
+                                showLine: true,
                                 lineTension: 0,
                             }
                         ]
@@ -313,6 +366,12 @@ Honstats - Match #{{ object.match_id }}
                                     labelString: 'Time',
                                     fontColor: '#FFF',
                                     fontSize: 18
+                                },
+                                ticks: {
+                                fontColor: '#FFF',
+                                    callback: function (value, index, values) {
+                                        return msToTime(value);
+                                    }
                                 }
                             }],
                             yAxes: [{
@@ -328,7 +387,6 @@ Honstats - Match #{{ object.match_id }}
                                 },
                                 ticks: {
                                     fontColor: '#FFF',
-                                    // Include a dollar sign in the ticks
                                     callback: function (value, index, values) {
                                         if (value > 0) {
                                             return value;
@@ -377,16 +435,10 @@ Honstats - Match #{{ object.match_id }}
                         },
                         hover: {
                             mode: 'index',
-                            intersect: false
+                            intersect: true
                         }
                     }
                 });
-
-
-
-
-
-
 
     </script>
 </div>
@@ -398,28 +450,6 @@ Honstats - Match #{{ object.match_id }}
     {% endwith %}
     {% endfor %}
     <script>
-                function msToTime(s) {
-
-                    // Pad to 2 or 3 digits, default is 2
-                    function pad(n, z) {
-                        z = z || 2;
-                        return ('00' + n).slice(-z);
-                    }
-
-                    var ms = s % 1000;
-                    s = (s - ms) / 1000;
-                    var secs = s % 60;
-                    s = (s - secs) / 60;
-                    var mins = s % 60;
-                    var hrs = (s - mins) / 60;
-
-                    if (hrs > 0) {
-                        return pad(hrs) + ':' + pad(mins) + ':' + pad(secs);
-                    }
-
-                    return pad(mins) + ':' + pad(secs);
-                }
-
                 function player_color(position) {
                     switch (position) {
                         case "0":
@@ -554,10 +584,6 @@ Honstats - Match #{{ object.match_id }}
                         }
                     }
                 });
-
-
-
-
 
 
 

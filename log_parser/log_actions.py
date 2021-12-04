@@ -286,8 +286,8 @@ class MatchData:
 
         exp_diff = {}
         for i in range(0, self.end_time, interval):
-            exp_diff[i] = self.get_exp_diff(i)
-        exp_diff[self.end_time] = self.get_exp_diff(self.end_time)
+            exp_diff[i] = round(self.get_exp_diff(i))
+        exp_diff[self.end_time] = round(self.get_exp_diff(self.end_time))
         match.exp_diff = json.dumps(exp_diff)
 
         for player in match.player_set.all():

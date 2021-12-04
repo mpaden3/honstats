@@ -2,6 +2,7 @@ import datetime
 import json
 
 from django.db import models
+from django.utils import timezone
 from django_extensions.db.models import TimeStampedModel
 from account.models import Account
 from game_data.models import Hero, Item
@@ -11,6 +12,9 @@ from match.managers import MatchManager
 
 class Match(TimeStampedModel):
     objects = MatchManager()
+
+    MAX_ATTEMPTS = 5
+    MAX_TIME = 120
 
     TEAM_EMPTY = "0"
     TEAM_LEGION = "1"
@@ -57,6 +61,9 @@ class Match(TimeStampedModel):
     exp_diff = models.JSONField(null=True)
     boss_kills = models.JSONField(null=True)
 
+    attempts = models.IntegerField(default=0)
+    last_attempt_time = models.DateTimeField(null=True)
+
     class Meta:
         ordering = ["-match_id"]
 
@@ -74,6 +81,19 @@ class Match(TimeStampedModel):
 
     def is_parsed(self):
         return self.parsed_level == self.REPLAY
+
+    def should_be_parsed(self):
+
+        return self.last_attempt_time is None or (
+            self.attempts < Match.MAX_ATTEMPTS
+            and self.last_attempt_time + timezone.timedelta(seconds=Match.MAX_TIME)
+            < timezone.now()
+        )
+
+    def add_attempt(self):
+        self.attempts += 1
+        self.last_attempt_time = timezone.now()
+        self.save()
 
     def __str__(self):
         if self.match_name:

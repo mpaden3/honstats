@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.views.generic import DetailView, ListView
 
 from account.models import Account
@@ -81,7 +81,11 @@ class AccountSearch(ListView):
         try:
             self.exact_match = Account.objects.get(nickname=self.search_term)
         except Account.DoesNotExist:
-            pass
+            try:
+                self.exact_match = fetch_account_data(self.search_term)
+                self.exact_match.refresh_from_db()
+            except Http404:
+                pass
         return super().get(request, **kwargs)
 
     def get_queryset(self):
